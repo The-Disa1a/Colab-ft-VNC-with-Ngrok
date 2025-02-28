@@ -9,9 +9,14 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Prompt user for Ngrok authtoken
-echo "Please enter your Ngrok authtoken: "
-read NGROK_AUTH_TOKEN
+# Check if an argument is provided
+if [[ -z "$1" ]]; then
+    echo "Usage: $0 <NGROK_AUTH_TOKEN>"
+    exit 1
+fi
+
+# Assign the first argument as the Ngrok auth token
+NGROK_AUTH_TOKEN="$1"
 
 # Function to create user
 create_user() {
@@ -40,9 +45,9 @@ setup_vnc() {
      && sudo apt update \
      && sudo apt install ngrok
     
-    ngrok config add-authtoken $NGROK_AUTH_TOKEN
+    ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
     
-    echo "setup completed."
+    echo "Setup completed."
 }
 
 # Execute functions
