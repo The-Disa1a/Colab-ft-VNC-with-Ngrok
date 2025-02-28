@@ -16,12 +16,12 @@ read NGROK_AUTH_TOKEN
 # Function to create user
 create_user() {
     echo "Creating User and Setting it up"
-    username="user"
+    username="colab"
     password="root"
     
     useradd -m "$username"
-    adduser "$username" sudo
     echo "$username:$password" | sudo chpasswd
+    usermod -aG sudo "$username"
     sed -i 's/\/bin\/sh/\/bin\/bash/g' /etc/passwd
     
     echo "User '$username' created and configured."
@@ -34,7 +34,14 @@ setup_vnc() {
     apt install --assume-yes xfce4 xfce4-terminal tightvncserver wget curl
     
     echo "Setting up VNC Server"
-    su - colab -c "vncserver :1 -geometry 1280x720 -depth 24"
+    sudo -u colab vncserver :1 -geometry 1280x720 -depth 24
+    
+    echo "Setting VNC Password"
+    sudo -u colab vncpasswd <<EOF
+12345678
+12345678
+n
+EOF
     
     echo "Installing and configuring Ngrok"
     wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
@@ -43,7 +50,7 @@ setup_vnc() {
     ngrok authtoken $NGROK_AUTH_TOKEN
     
     echo "Starting Ngrok Tunnel"
-    su - colab -c "ngrok tcp 5901 &"
+    sudo -u colab ngrok tcp 5901 &
     
     echo "VNC setup completed."
 }
