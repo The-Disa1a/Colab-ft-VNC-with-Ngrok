@@ -35,8 +35,8 @@ create_user() {
 # Function to install and configure RDP using VNC
 setup_vnc() {
     echo "Installing Desktop Environment and VNC"
-    apt update
-    apt install --assume-yes xfce4 xfce4-terminal tightvncserver wget curl tmate 
+    apt update > /dev/null 2>&1 &
+    apt install --assume-yes xfce4 xfce4-terminal tightvncserver wget curl tmate > /dev/null 2>&1 &
 
     echo "Installing and configuring Ngrok"
     curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
