@@ -10,7 +10,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Check if an argument is provided
-if [[ -z "$1" ]]; then
+if [[ $# -ne 1 ]]; then
     echo "Usage: $0 <NGROK_AUTH_TOKEN>"
     exit 1
 fi
@@ -37,13 +37,14 @@ setup_vnc() {
     echo "Installing Desktop Environment and VNC"
     apt update
     apt install --assume-yes xfce4 xfce4-terminal tightvncserver wget curl tmate 
+
     echo "Installing and configuring Ngrok"
     curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
      | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
      && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
      | sudo tee /etc/apt/sources.list.d/ngrok.list \
      && sudo apt update \
-     && sudo apt install ngrok
+     && sudo apt install ngrok -y
     
     ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
     
