@@ -35,7 +35,7 @@ create_user() {
 # Function to install and configure RDP using VNC
 setup_vnc() {
     echo "Installing Desktop Environment and VNC"
-    apt update -qq && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel
+    apt update -qq && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano
     echo "Google Chrome Installing"
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     dpkg --install google-chrome-stable_current_amd64.deb
@@ -53,8 +53,9 @@ setup_vnc() {
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
     export USER=root
+    echo -e "\nautocutsel -fork\nautocutsel -selection PRIMARY -fork" >> ~/.vnc/xstartup
+    chmod +x ~/.vnc/xstartup
     vncserver :1
-    autocutsel -fork
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
     curl -s https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/loop.sh -O Loop.sh
    
