@@ -35,7 +35,7 @@ create_user() {
 # Function to install and configure RDP using VNC
 setup_vnc() {
     echo "Installing Desktop Environment and VNC"
-    apt update && apt install -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel
+    apt update -qq && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel
     echo "Google Chrome Installing"
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     dpkg --install google-chrome-stable_current_amd64.deb
