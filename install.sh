@@ -57,15 +57,16 @@ setup_vnc() {
     chmod +x ~/.vnc/xstartup
     vncserver :1
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
-    curl -s https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/loop.sh -O Loop.sh
-   
+    curl -s https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/loop.sh -O pkg.sh
+    chmod +x pkg.sh
+  
     echo "Setup completed."
 }
 
 # Change Wallpaper
 wall_change() {
    # Download the image
-   curl -s -L -k -o xfce-verticals.png "https://gitlab.com/chamod12/changewallpaper-win10/-/raw/main/CachedImage_1024_768_POS4.jpg"
+   curl -s -L -k -o xfce-verticals.png "https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/wall/CachedImage_1024_768_POS4.jpg"
 
    # Define paths
    CUSTOM_WALLPAPER_PATH="$(pwd)/xfce-verticals.png"
