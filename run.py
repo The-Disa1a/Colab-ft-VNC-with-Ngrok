@@ -35,7 +35,7 @@ setup_vnc() {
 
     echo "Setting VNC Password"
     echo "Setting VNC Password"
-    sudo -u colab vncpasswd <<EOF
+    sudo -u user vncpasswd <<EOF
     12345678
     12345678
     n
