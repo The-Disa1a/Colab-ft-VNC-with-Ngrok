@@ -62,6 +62,21 @@ setup_vnc() {
     echo "Setup completed."
 }
 
+# Change Wallpaper
+wall_change() {
+   # Download the image
+   curl -s -L -k -o xfce-verticals.png "https://gitlab.com/chamod12/changewallpaper-win10/-/raw/main/CachedImage_1024_768_POS4.jpg"
+
+   # Define paths
+   CUSTOM_WALLPAPER_PATH="$(pwd)/xfce-verticals.png"
+   DESTINATION_PATH="/usr/share/backgrounds/xfce/"
+
+   # Copy the image to the destination
+   sudo cp "$CUSTOM_WALLPAPER_PATH" "$DESTINATION_PATH"
+   echo "Wallpaper Changed."
+}
+
 # Execute functions
 create_user
 setup_vnc
+wall_change
