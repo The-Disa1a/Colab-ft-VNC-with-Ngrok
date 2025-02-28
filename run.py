@@ -39,21 +39,21 @@ setup_vnc() {
 12345678
 n
 EOF
-    # echo "123456" | vncpasswd -f > ~/.vnc/passwd
-    # chmod 600 ~/.vnc/passwd
+    
     vncserver :1
     
     echo "Installing and configuring Ngrok"
     curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
- 	 | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
-	 && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-	 | sudo tee /etc/apt/sources.list.d/ngrok.list \
-	 && sudo apt update \
-	 && sudo apt install ngrok
+     | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+     && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+     | sudo tee /etc/apt/sources.list.d/ngrok.list \
+     && sudo apt update \
+     && sudo apt install ngrok
+    
     ngrok config add-authtoken $NGROK_AUTH_TOKEN
     
     echo "Starting Ngrok Tunnel"
-    ngrok tcp --region in  5901 > /dev/null 2>&1 &
+    ngrok tcp --region in 5901 > /dev/null 2>&1 &
     
     echo "VNC setup completed."
 }
