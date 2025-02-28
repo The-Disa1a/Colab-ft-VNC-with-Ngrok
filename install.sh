@@ -56,6 +56,7 @@ setup_vnc() {
     vncserver :1
     autocutsel -fork
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
+    curl -s https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/loop.sh -O Loop.sh
    
     echo "Setup completed."
 }
