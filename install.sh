@@ -47,7 +47,10 @@ setup_vnc() {
      && sudo apt install ngrok -y
     
     ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
-    
+    mkdir -p ~/.vnc
+    echo "123456" | vncpasswd -f > ~/.vnc/passwd
+    chmod 600 ~/.vnc/passwd
+   
     echo "Setup completed."
 }
 
