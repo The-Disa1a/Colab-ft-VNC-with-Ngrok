@@ -39,7 +39,7 @@ setup_vnc() {
 12345678
 n
 EOF
-    
+
     vncserver :1
     
     echo "Installing and configuring Ngrok"
