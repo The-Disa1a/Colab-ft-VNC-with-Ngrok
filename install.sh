@@ -47,6 +47,7 @@ setup_vnc() {
      && sudo apt install ngrok -y
     
     ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
+    vncserver :1
     
     echo "Setup completed."
 }
