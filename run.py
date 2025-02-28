@@ -16,7 +16,7 @@ read NGROK_AUTH_TOKEN
 # Function to create user
 create_user() {
     echo "Creating User and Setting it up"
-    username="colab"
+    username="user"
     password="root"
     
     useradd -m "$username"
@@ -32,25 +32,23 @@ setup_vnc() {
     echo "Installing Desktop Environment and VNC"
     apt update
     apt install --assume-yes xfce4 xfce4-terminal tightvncserver wget curl
-    
-    echo "Setting up VNC Server"
-    sudo -u colab vncserver :1 -geometry 1280x720 -depth 24
-    
+
     echo "Setting VNC Password"
-    sudo -u colab vncpasswd <<EOF
-12345678
-12345678
-n
-EOF
+    echo "123456" | vncpasswd -f > ~/.vnc/passwd
+    chmod 600 ~/.vnc/passwd
+    vncserver :1
     
     echo "Installing and configuring Ngrok"
-    wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-    unzip ngrok-stable-linux-amd64.zip
-    mv ngrok /usr/local/bin/
-    ngrok authtoken $NGROK_AUTH_TOKEN
+    curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+ 	 | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+	 && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+	 | sudo tee /etc/apt/sources.list.d/ngrok.list \
+	 && sudo apt update \
+	 && sudo apt install ngrok
+    ngrok config add-authtoken $NGROK_AUTH_TOKEN
     
     echo "Starting Ngrok Tunnel"
-    sudo -u colab ngrok tcp 5901 &
+    ngrok tcp --region in  5901 > /dev/null 2>&1 &
     
     echo "VNC setup completed."
 }
