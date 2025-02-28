@@ -50,6 +50,7 @@ setup_vnc() {
     mkdir -p ~/.vnc
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
+    export USER=root
     vncserver :1
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
     curl -s http://127.0.0.1:4040/api/tunnels | grep -o '"tcp://[^"]*' | sed 's/tcp:\/\///'
