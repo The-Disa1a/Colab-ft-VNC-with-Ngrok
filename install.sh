@@ -10,8 +10,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Check if an argument is provided
-if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 <NGROK_AUTH_TOKEN>"
+if [[ -z "$1" ]]; then
+    echo "Usage: $0 \"<NGROK_AUTH_TOKEN>\""
     exit 1
 fi
 
