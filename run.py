@@ -34,12 +34,11 @@ setup_vnc() {
     apt install --assume-yes xfce4 xfce4-terminal tightvncserver wget curl
 
     echo "Setting VNC Password"
-    echo "Setting VNC Password"
     sudo -u user vncpasswd <<EOF
-    12345678
-    12345678
-    n
-    EOF
+12345678
+12345678
+n
+EOF
     # echo "123456" | vncpasswd -f > ~/.vnc/passwd
     # chmod 600 ~/.vnc/passwd
     vncserver :1
