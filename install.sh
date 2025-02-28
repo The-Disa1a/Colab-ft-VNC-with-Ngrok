@@ -35,8 +35,11 @@ create_user() {
 # Function to install and configure RDP using VNC
 setup_vnc() {
     echo "Installing Desktop Environment and VNC"
-    apt update && apt install -y xfce4 xfce4-terminal tightvncserver wget curl tmate
-
+    apt update && apt install -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel
+    echo "Google Chrome Installing"
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    dpkg --install google-chrome-stable_current_amd64.deb
+    apt install --assume-yes --fix-broken
     echo "Installing and configuring Ngrok"
     curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
      | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
@@ -51,6 +54,7 @@ setup_vnc() {
     chmod 600 ~/.vnc/passwd
     export USER=root
     vncserver :1
+    autocutsel -fork
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
    
     echo "Setup completed."
