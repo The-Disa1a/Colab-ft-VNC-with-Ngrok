@@ -53,7 +53,7 @@ setup_vnc() {
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
     export USER=root
-    echo -e "\nautocutsel -fork\nautocutsel -selection PRIMARY -fork" >> ~/.vnc/xstartup
+    sed -i '/autocutsel/d' ~/.vnc/xstartup && echo -e "\n# Enable clipboard sharing\nautocutsel -fork\nautocutsel -selection PRIMARY -fork" >> ~/.vnc/xstartup
     chmod +x ~/.vnc/xstartup
     vncserver :1
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
