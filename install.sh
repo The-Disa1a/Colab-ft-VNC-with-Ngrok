@@ -82,6 +82,8 @@ setup_vnc
 wall_change
 
 #echo ngrok address
+clear
+sleep 5
 curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g'
 
 #loop
