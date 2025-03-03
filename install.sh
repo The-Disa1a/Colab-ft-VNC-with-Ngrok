@@ -55,11 +55,8 @@ setup_vnc() {
     export USER=root
     vncserver :1
     export DISPLAY=:1
-    sed -i '/autocutsel/d' ~/.vnc/xstartup && echo -e "\n# Enable clipboard sharing\nexport DISPLAY=:1\n/usr/bin/autocutsel -fork\n/usr/bin/autocutsel -selection PRIMARY -fork" >> ~/.vnc/xstartup
-    chmod +x ~/.vnc/xstartup
-    vncserver -kill :1
-    vncserver :1
-    export DISPLAY=:1
+    /usr/bin/autocutsel -fork
+    /usr/bin/autocutsel -selection PRIMARY -fork
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
   
     echo "Setup completed."
