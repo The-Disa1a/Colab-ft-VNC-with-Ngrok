@@ -49,6 +49,7 @@ setup_vnc() {
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
     export USER=root
+    vncserver -geometry 1920x1080
     vncserver :1
     export DISPLAY=:1
     /usr/bin/autocutsel -fork
