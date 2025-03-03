@@ -1,28 +1,25 @@
 #!/bin/bash
 
-# Define paths
-CHROME_PROFILE="$HOME/.config/google-chrome"
-BACKUP_PATH="/content/drive/MyDrive/chrome-profile"
+BACKUP_PATH="/content/drive/MyDrive/ChromeBackup"
+CHROME_PROFILE="/root/.config/google-chrome/Default"
 
-# Save Chrome Profile
 backup() {
     echo "Backing up Chrome profile..."
-    rsync -av --progress "$CHROME_PROFILE/" "$BACKUP_PATH/"
-    echo "Backup completed."
+    mkdir -p "$BACKUP_PATH"
+    rsync -av --progress "$CHROME_PROFILE/" "$BACKUP_PATH/" --exclude="SingletonLock" --exclude="SingletonSocket" --exclude="SingletonCookie"
+    echo "Backup completed!"
 }
 
-# Restore Chrome Profile
 restore() {
     echo "Restoring Chrome profile..."
+    mkdir -p "$CHROME_PROFILE"
     rsync -av --progress "$BACKUP_PATH/" "$CHROME_PROFILE/"
-    echo "Restore completed."
+    rm -rf "$CHROME_PROFILE/SingletonLock" "$CHROME_PROFILE/SingletonSocket" "$CHROME_PROFILE/SingletonCookie"
+    echo "Restore completed!"
 }
 
-# Check user input
-if [ "$1" == "backup" ]; then
-    backup
-elif [ "$1" == "restore" ]; then
-    restore
-else
-    echo "Usage: bash /content/backup.sh [backup|restore]"
-fi
+case "$1" in
+    backup) backup ;;
+    restore) restore ;;
+    *) echo "Usage: $0 {backup|restore}" ;;
+esac
