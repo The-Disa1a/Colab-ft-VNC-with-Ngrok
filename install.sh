@@ -53,12 +53,12 @@ setup_vnc() {
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
     export USER=root
+    vncserver :1
     sed -i '/autocutsel/d' ~/.vnc/xstartup && echo -e "\n# Enable clipboard sharing\nautocutsel -fork\nautocutsel -selection PRIMARY -fork" >> ~/.vnc/xstartup
     chmod +x ~/.vnc/xstartup
+    vncserver -kill :1
     vncserver :1
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
-    curl -s https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/loop.sh -O pkg.sh
-    chmod +x pkg.sh
   
     echo "Setup completed."
 }
@@ -81,3 +81,9 @@ wall_change() {
 create_user
 setup_vnc
 wall_change
+
+#echo ngrok address
+curl -s http://127.0.0.1:4040/api/tunnels | grep -o '"tcp://[^"]*' | sed 's/tcp:\/\///'
+
+#loop
+start_time=$(date +%s); while true; do elapsed=$(( $(date +%s) - start_time )); elapsed_formatted=$(printf "%02d:%02d:%02d" $((elapsed/3600)) $(((elapsed%3600)/60)) $((elapsed%60))); echo -ne "\rRunning Time: $elapsed_formatted"; sleep 1; done
