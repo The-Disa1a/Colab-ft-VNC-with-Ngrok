@@ -1,20 +1,19 @@
 #!/bin/bash
 
-BACKUP_PATH="/content/drive/MyDrive/ChromeBackup"
+BACKUP_PATH="/content/drive/MyDrive/ChromeBackup.zip"
 CHROME_PROFILE="/root/.config/google-chrome/Default"
 
 backup() {
-    echo "Backing up Chrome profile..."
-    mkdir -p "$BACKUP_PATH"
-    rsync -av --progress "$CHROME_PROFILE/" "$BACKUP_PATH/" --exclude="SingletonLock" --exclude="SingletonSocket" --exclude="SingletonCookie"
-    echo "Backup completed!"
+    echo "Compressing Chrome profile..."
+    zip -r -q "$BACKUP_PATH" "$CHROME_PROFILE" -x "*.lock" "*.socket" "*.cookie"
+    echo "Backup completed! File saved at: $BACKUP_PATH"
 }
 
 restore() {
     echo "Restoring Chrome profile..."
+    rm -rf "$CHROME_PROFILE"
     mkdir -p "$CHROME_PROFILE"
-    rsync -av --progress "$BACKUP_PATH/" "$CHROME_PROFILE/"
-    rm -rf "$CHROME_PROFILE/SingletonLock" "$CHROME_PROFILE/SingletonSocket" "$CHROME_PROFILE/SingletonCookie"
+    unzip -q "$BACKUP_PATH" -d "/"
     echo "Restore completed!"
 }
 
