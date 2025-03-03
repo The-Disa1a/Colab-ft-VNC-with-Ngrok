@@ -62,6 +62,25 @@ setup_vnc() {
 BACKUP_PATH="/content/drive/MyDrive/ChromeBackup.zip"
 CHROME_PROFILE="/root/.config/google-chrome/Default"
 
+# Function to handle backup when script exits (Ctrl+C)
+backup_on_exit() {
+    echo -e "\n\n🚀 Detected exit! Backing up Chrome profile..."
+    
+    # Check if Chrome profile exists
+    if [ -d "$CHROME_PROFILE" ]; then
+        echo "Creating backup..."
+        zip -r -q "$BACKUP_PATH" "$CHROME_PROFILE"
+        echo "✅ Backup completed: $BACKUP_PATH"
+    else
+        echo "⚠️ No Chrome profile found to backup!"
+    fi
+    
+    exit 0
+}
+
+# Trap Ctrl+C (SIGINT) to trigger backup_on_exit function
+trap backup_on_exit SIGINT
+
 # Function to install Google Chrome
 install_chrome() {
     echo "Installing Google Chrome..."
