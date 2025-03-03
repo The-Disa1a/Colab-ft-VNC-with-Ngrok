@@ -35,7 +35,7 @@ create_user() {
 # Function to install and configure RDP using VNC
 setup_vnc() {
    echo "Installing Desktop Environment and VNC..."
-   apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano > /dev/null 2>&1
+   apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server > /dev/null 2>&1
 
    echo "Installing and configuring Ngrok..."
    curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
@@ -49,8 +49,7 @@ setup_vnc() {
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
     export USER=root
-    vncserver -geometry 1920x1080
-    vncserver :1
+    vncserver -geometry 1200x900 -depth 16 :1
     export DISPLAY=:1
     /usr/bin/autocutsel -fork
     /usr/bin/autocutsel -selection PRIMARY -fork
