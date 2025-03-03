@@ -34,20 +34,20 @@ create_user() {
 
 # Function to install and configure RDP using VNC
 setup_vnc() {
-    echo "Installing Desktop Environment and VNC"
-    apt update -qq && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano
-    echo "Google Chrome Installing"
-    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    dpkg --install google-chrome-stable_current_amd64.deb
-    apt install --assume-yes --fix-broken
-    echo "Installing and configuring Ngrok"
-    curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-     | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
-     && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-     | sudo tee /etc/apt/sources.list.d/ngrok.list \
-     && sudo apt update \
-     && sudo apt install ngrok -y
-    
+   echo "Installing Desktop Environment and VNC..."
+   apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano > /dev/null 2>&1
+
+   echo "Installing Google Chrome..."
+   wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/google-chrome.deb
+   dpkg --install /tmp/google-chrome.deb > /dev/null 2>&1 || apt install -qq -y --fix-broken > /dev/null 2>&1
+
+   echo "Installing and configuring Ngrok..."
+   curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
+   echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
+   apt update -qq > /dev/null 2>&1 && apt install -qq -y ngrok > /dev/null 2>&1
+
+   echo "Installation completed silently."
+   
     ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
     mkdir -p ~/.vnc
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
