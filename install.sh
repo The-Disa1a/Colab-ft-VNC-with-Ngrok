@@ -54,10 +54,12 @@ setup_vnc() {
     chmod 600 ~/.vnc/passwd
     export USER=root
     vncserver :1
+    export DISPLAY=:1
     sed -i '/autocutsel/d' ~/.vnc/xstartup && echo -e "\n# Enable clipboard sharing\nexport DISPLAY=:1\n/usr/bin/autocutsel -fork\n/usr/bin/autocutsel -selection PRIMARY -fork" >> ~/.vnc/xstartup
     chmod +x ~/.vnc/xstartup
     vncserver -kill :1
     vncserver :1
+    export DISPLAY=:1
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
   
     echo "Setup completed."
@@ -86,4 +88,4 @@ wall_change
 curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g'
 
 #loop
-start_time=$(date +%s); while true; do elapsed=$(( $(date +%s) - start_time )); elapsed_formatted=$(printf "%02d:%02d:%02d" $((elapsed/3600)) $(((elapsed%3600)/60)) $((elapsed%60))); echo -ne "\rRunning Time: $elapsed_formatted"; sleep 1; done
+start_time=$(date +%s); while true; do elapsed=$(( $(date +%s) - start_time )); elapsed_formatted=$(printf "%02d:%02d:%02d" $((elapsed/3600)) $(((elapsed%3600)/60)) $((elapsed%60))); echo -ne "\rRunning Time: $elapsed_formatted"; sleep 5; done
