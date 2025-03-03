@@ -37,10 +37,6 @@ setup_vnc() {
    echo "Installing Desktop Environment and VNC..."
    apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano > /dev/null 2>&1
 
-   echo "Installing Google Chrome..."
-   wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/google-chrome.deb
-   dpkg --install /tmp/google-chrome.deb > /dev/null 2>&1 || apt install -qq -y --fix-broken > /dev/null 2>&1
-
    echo "Installing and configuring Ngrok..."
    curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
    echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
@@ -57,12 +53,39 @@ setup_vnc() {
     export DISPLAY=:1
     /usr/bin/autocutsel -fork
     /usr/bin/autocutsel -selection PRIMARY -fork
-    sed -i 's|^Exec=/usr/bin/google-chrome-stable.*|Exec=/usr/bin/google-chrome-stable --no-sandbox %U|' /usr/share/applications/google-chrome.desktop
-    update-desktop-database ~/.local/share/applications
     ngrok tcp --region in  5901 > /dev/null 2>&1 &
   
     echo "Setup completed."
 }
+
+# Paths
+BACKUP_PATH="/content/drive/MyDrive/ChromeBackup.zip"
+CHROME_PROFILE="/root/.config/google-chrome/Default"
+
+# Function to install Google Chrome
+install_chrome() {
+    echo "Installing Google Chrome..."
+    wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/google-chrome.deb
+    dpkg --install /tmp/google-chrome.deb > /dev/null 2>&1 || apt install -qq -y --fix-broken > /dev/null 2>&1
+    echo "Google Chrome Installed!"
+    sed -i 's|^Exec=/usr/bin/google-chrome-stable.*|Exec=/usr/bin/google-chrome-stable --no-sandbox %U|' /usr/share/applications/google-chrome.desktop
+    sudo chmod -R 777 /root/.local/share/applications
+    update-desktop-database ~/.local/share/applications
+}
+
+# Function to restore Chrome profile if backup exists
+restore_profile() {
+    if [[ -f "$BACKUP_PATH" ]]; then
+        echo "Chrome profile backup found! Restoring..."
+        rm -rf "$CHROME_PROFILE"
+        mkdir -p "$CHROME_PROFILE"
+        unzip -q "$BACKUP_PATH" -d "/"
+        echo "Chrome profile restored successfully!"
+    else
+        echo "No Chrome profile backup found. Skipping restore."
+    fi
+}
+echo "Setup completed!"
 
 # Change Wallpaper
 wall_change() {
@@ -81,10 +104,11 @@ wall_change() {
 # Execute functions
 create_user
 setup_vnc
+install_chrome
+restore_profile
 wall_change
 
 #echo ngrok address
-sleep 5
 curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g'
 
 #loop
