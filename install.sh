@@ -52,7 +52,7 @@ setup_vnc() {
     mkdir -p ~/.vnc
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
-    export USER=root
+    # export USER=root
     vncserver :1
     sed -i '/autocutsel/d' ~/.vnc/xstartup && echo -e "\n# Enable clipboard sharing\nautocutsel -fork\nautocutsel -selection PRIMARY -fork" >> ~/.vnc/xstartup
     chmod +x ~/.vnc/xstartup
