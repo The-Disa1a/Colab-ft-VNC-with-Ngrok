@@ -63,8 +63,8 @@ setup_vnc() {
 # Paths
 CHROME_BACKUP_PATH="/content/drive/MyDrive/ChromeBackup.zip"
 NIGHTLY_BACKUP_PATH="/content/drive/MyDrive/Nightly.zip"
-CHROME_PROFILE="/root/.config/google-chrome/Default"
-NIGHTLY_PROFILE="$HOME/.cache/mozilla/firefox/rz9xaw27.discord.automate"
+CHROME_PROFILE="~/.config/google-chrome/Default"
+NIGHTLY_PROFILE="~/.cache/mozilla/firefox/rz9xaw27.discord.automate"
 
 # Function to handle backup when script exits (Ctrl+C)
 backup_on_exit() {
