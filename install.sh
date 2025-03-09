@@ -61,8 +61,8 @@ setup_vnc() {
 }
 
 # Paths
-CHROME_BACKUP_PATH="/content/drive/MyDrive/ChromeBackup.zip"
-NIGHTLY_BACKUP_PATH="/content/drive/MyDrive/Nightly.zip"
+CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
+NIGHTLY_BACKUP_PATH="/content/drive/MyDrive/Profiles/Nightly.zip"
 CHROME_PROFILE="~/.config/google-chrome/Default"
 NIGHTLY_PROFILE="/root/.cache/mozilla/firefox/hve9e6he.Discord.automate"
 
