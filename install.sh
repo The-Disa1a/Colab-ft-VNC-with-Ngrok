@@ -39,6 +39,7 @@ setup_vnc() {
    pip install playwright openai > /dev/null 2>&1
    python -m playwright install firefox > /dev/null 2>&1
    sudo ln -sf ~/.cache/ms-playwright/firefox-1471/firefox/firefox /usr/local/bin/nightly
+   echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1471/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
    echo "Installing and configuring Ngrok..."
    curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
    echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
