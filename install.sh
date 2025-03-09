@@ -62,9 +62,9 @@ setup_vnc() {
 
 # Paths
 CHROME_BACKUP_PATH="/content/drive/MyDrive/ChromeBackup.zip"
+NIGHTLY_BACKUP_PATH="/content/drive/MyDrive/Nightly.zip"
 CHROME_PROFILE="/root/.config/google-chrome/Default"
 NIGHTLY_PROFILE="$HOME/.cache/mozilla/firefox/rz9xaw27.discord.automate"
-$NIGHTLY_BACKUP_PATH="/content/drive/MyDrive/Nightly.zip"
 
 # Function to handle backup when script exits (Ctrl+C)
 backup_on_exit() {
@@ -105,32 +105,32 @@ install_chrome() {
     update-desktop-database ~/.local/share/applications
 }
 
-# Function to restore Chrome profile if backup exists
 restore_profile() {
-    if [[ -f "$BACKUP_PATH" ]]; then
-        echo "Chrome profile backup found! Restoring..."
+    echo "Checking for backup files..."
+    echo "Looking for Chrome backup at: $CHROME_BACKUP_PATH"
+    echo "Looking for Firefox backup at: $NIGHTLY_BACKUP_PATH"
+
+    if [[ -f "$CHROME_BACKUP_PATH" ]]; then
+        echo "📂 Chrome profile backup found! Restoring..."
         rm -rf "$CHROME_PROFILE"
         mkdir -p "$CHROME_PROFILE"
-        unzip -q "$BACKUP_PATH" -d "/"
-        echo "Chrome profile restored successfully!"
+        unzip -q "$CHROME_BACKUP_PATH" -d "/"
+        echo "✅ Chrome profile restored successfully!"
     else
-        echo "No Chrome profile backup found. Skipping restore."
+        echo "⚠️ No Chrome profile backup found. Skipping restore."
     fi
-}
-echo "Setup completed!"
 
-# Function to restore Firefox Nightly profile if backup exists
-restore_nightly_profile() {
-    if [[ -f "$BACKUP_PATH" ]]; then
-        echo "Firefox Nightly profile backup found! Restoring..."
+    if [[ -f "$NIGHTLY_BACKUP_PATH" ]]; then
+        echo "🔥 Firefox Nightly profile backup found! Restoring..."
         rm -rf "$NIGHTLY_PROFILE"
         mkdir -p "$NIGHTLY_PROFILE"
-        unzip -q "$BACKUP_PATH" -d "/"
-        echo "Firefox Nightly profile restored successfully!"
+        unzip -q "$NIGHTLY_BACKUP_PATH" -d "/"
+        echo "✅ Firefox Nightly profile restored successfully!"
     else
-        echo "No Firefox Nightly profile backup found. Skipping restore."
+        echo "⚠️ No Firefox Nightly profile backup found. Skipping restore."
     fi
 }
+
 
 # Change Wallpaper
 wall_change() {
@@ -151,11 +151,10 @@ create_user
 setup_vnc
 install_chrome
 restore_profile
-restore_nightly_profile
 wall_change
 
 #echo ngrok address
 curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g'
 
 #loop
-start_time=$(date +%s); while true; do elapsed=$(( $(date +%s) - start_time )); elapsed_formatted=$(printf "%02d:%02d:%02d" $((elapsed/3600)) $(((elapsed%3600)/60)) $((elapsed%60))); echo -ne "\rRunning Time: $elapsed_formatted"; sleep 5; done
+start_time=$(date +%s); while true; do elapsed=$(( $(date +%s) - start_time )); elapsed_formatted=$(printf "%02d:%02d:%02d" $((elapsed/3600)) $(((elapsed%3600)/60)) $((elapsed%60))); echo -ne "\rRunning Time: $elapsed_formatted"; sleep 15; done
