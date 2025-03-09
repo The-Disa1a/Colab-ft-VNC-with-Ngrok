@@ -80,13 +80,13 @@ backup_on_exit() {
         echo "⚠️ No Chrome profile found to backup!"
     fi
 
-    # Backup Firefox Nightly Profile
-    if [ -f "$NIGHTLY_PROFILE" ]; then
+    # Check if the Firefox profile directory exists
+    if [ -d "$NIGHTLY_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly profile..."
         zip -r -q "$NIGHTLY_BACKUP_PATH" "$NIGHTLY_PROFILE"
         echo "✅ Firefox Nightly backup completed: $NIGHTLY_BACKUP_PATH"
     else
-        echo "⚠️ No Firefox Nightly profile found to backup!"
+        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_PROFILE"
     fi
 
     exit 0
