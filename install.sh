@@ -81,7 +81,7 @@ backup_on_exit() {
     fi
 
     # Backup Firefox Nightly Profile
-    if [ -d "$NIGHTLY_PROFILE" ]; then
+    if [ -f "$NIGHTLY_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly profile..."
         zip -r -q "$NIGHTLY_BACKUP_PATH" "$NIGHTLY_PROFILE"
         echo "✅ Firefox Nightly backup completed: $NIGHTLY_BACKUP_PATH"
