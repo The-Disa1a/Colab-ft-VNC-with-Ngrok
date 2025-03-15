@@ -71,7 +71,7 @@ NIGHTLY_LOCAL_PROFILE="~/.cache/mozilla/firefox"
 
 # Function to handle backup when script exits (Ctrl+C)
 backup_on_exit() {
-    echo -e "\n\n🚀 Detected exit! Backing up profiles..."
+    echo -e "🚀 Detected exit! Backing up profiles..."
 
     # Backup Chrome Profile
     if [ -d "$CHROME_PROFILE" ]; then
@@ -100,7 +100,8 @@ backup_on_exit() {
        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
    fi
    
-   exit 0
+   # Kill the script process to ensure exit
+   kill -SIGTERM "$$"
 }
 
 # Trap Ctrl+C (SIGINT) to trigger backup_on_exit function
