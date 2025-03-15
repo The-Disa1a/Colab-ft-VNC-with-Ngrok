@@ -63,9 +63,11 @@ setup_vnc() {
 
 # Paths
 CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
-NIGHTLY_BACKUP_PATH="/content/drive/MyDrive/Profiles/Nightly.zip"
+NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
+NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
 CHROME_PROFILE="~/.config/google-chrome/Default"
-NIGHTLY_PROFILE="~/.mozilla/firefox"
+NIGHTLY_ROOT_PROFILE="~/.mozilla/firefox"
+NIGHTLY_LOCAL_PROFILE="~/.cache/mozilla/firefox"
 
 # Function to handle backup when script exits (Ctrl+C)
 backup_on_exit() {
@@ -80,13 +82,22 @@ backup_on_exit() {
         echo "⚠️ No Chrome profile found to backup!"
     fi
 
-    # Check if the Firefox profile directory exists
-    if [ -d "$NIGHTLY_PROFILE" ]; then
+    # Check if the Firefox root profile directory exists
+    if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly profile..."
-        zip -r -q "$NIGHTLY_BACKUP_PATH" "$NIGHTLY_PROFILE"
-        echo "✅ Firefox Nightly backup completed: $NIGHTLY_BACKUP_PATH"
+        zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
+        echo "✅ Firefox Nightly backup completed: $NIGHTLY_RBACKUP_PATH"
     else
-        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_PROFILE"
+        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_ROOT_PROFILE"
+    fi
+
+    # Check if the Firefox local profile directory exists
+    if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
+        echo "🔥 Backing up Firefox Nightly profile..."
+        zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
+        echo "✅ Firefox Nightly backup completed: $NIGHTLY_LBACKUP_PATH"
+    else
+        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
     fi
 
     exit 0
@@ -109,7 +120,8 @@ install_chrome() {
 restore_profile() {
     echo "Checking for backup files..."
     echo "Looking for Chrome backup at: $CHROME_BACKUP_PATH"
-    echo "Looking for Firefox backup at: $NIGHTLY_BACKUP_PATH"
+    echo "Looking for Firefox root backup at: $NIGHTLY_RBACKUP_PATH"
+    echo "Looking for Firefox local backup at: $NIGHTLY_LBACKUP_PATH"
 
     if [[ -f "$CHROME_BACKUP_PATH" ]]; then
         echo "📂 Chrome profile backup found! Restoring..."
@@ -121,14 +133,24 @@ restore_profile() {
         echo "⚠️ No Chrome profile backup found. Skipping restore."
     fi
 
-    if [[ -f "$NIGHTLY_BACKUP_PATH" ]]; then
-        echo "🔥 Firefox Nightly profile backup found! Restoring..."
-        rm -rf "$NIGHTLY_PROFILE"
-        mkdir -p "$NIGHTLY_PROFILE"
-        unzip -q "$NIGHTLY_BACKUP_PATH" -d "/"
-        echo "✅ Firefox Nightly profile restored successfully!"
+    if [[ -f "$NIGHTLY_RBACKUP_PATH" ]]; then
+        echo "🔥 Firefox Nightly root profile backup found! Restoring..."
+        rm -rf "$NIGHTLY_ROOT_PROFILE"
+        mkdir -p "$NIGHTLY_ROOT_PROFILE"
+        unzip -q "$NIGHTLY_RBACKUP_PATH" -d "/"
+        echo "✅ Firefox Nightly root profile restored successfully!"
     else
-        echo "⚠️ No Firefox Nightly profile backup found. Skipping restore."
+        echo "⚠️ No Firefox Nightly root profile backup found. Skipping restore."
+    fi
+
+    if [[ -f "$NIGHTLY_LBACKUP_PATH" ]]; then
+        echo "🔥 Firefox Nightly local profile backup found! Restoring..."
+        rm -rf "$NIGHTLY_LOCAL_PROFILE"
+        mkdir -p "$NIGHTLY_LOCAL_PROFILE"
+        unzip -q "$NIGHTLY_LBACKUP_PATH" -d "/"
+        echo "✅ Firefox Nightly local profile restored successfully!"
+    else
+        echo "⚠️ No Firefox Nightly local profile backup found. Skipping restore."
     fi
 }
 
