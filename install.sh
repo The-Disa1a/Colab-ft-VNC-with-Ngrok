@@ -94,7 +94,7 @@ backup_on_exit() {
     # Check if the Firefox local profile directory exists
     if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
        echo "🔥 Backing up Firefox Nightly profile..."
-       zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
+       zip -r -q "$NIGHTLY_LBACKUP_PATH" $NIGHTLY_LOCAL_PROFILE
        echo "✅ Firefox Nightly backup completed: $NIGHTLY_LBACKUP_PATH"
    else
        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
