@@ -99,6 +99,9 @@ backup_on_exit() {
    else
        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
    fi
+
+   # Forcefully exit the script
+   exit 0
 }
 
 # Trap Ctrl+C (SIGINT) to trigger backup_on_exit function
