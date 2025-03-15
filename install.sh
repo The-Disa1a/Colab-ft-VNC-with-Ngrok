@@ -71,7 +71,7 @@ NIGHTLY_LOCAL_PROFILE="~/.cache/mozilla/firefox"
 
 # Function to handle backup when script exits (Ctrl+C)
 backup_on_exit() {
-    echo -e "🚀 Detected exit! Backing up profiles..."
+    echo -e "\n\n🚀 Detected exit! Backing up profiles..."
 
     # Backup Chrome Profile
     if [ -d "$CHROME_PROFILE" ]; then
@@ -82,26 +82,28 @@ backup_on_exit() {
         echo "⚠️ No Chrome profile found to backup!"
     fi
 
-    # Check if the Firefox root profile directory exists
+    # Backup Firefox Root Profile
     if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly profile..."
-        zip -r -q "$NIGHTLY_RBACKUP_PATH" $NIGHTLY_ROOT_PROFILE
+        zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
         echo "✅ Firefox Nightly backup completed: $NIGHTLY_RBACKUP_PATH"
     else
         echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_ROOT_PROFILE"
     fi
 
-    # Check if the Firefox local profile directory exists
+    # Backup Firefox Local Profile
     if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
-       echo "🔥 Backing up Firefox Nightly profile..."
-       zip -r -q "$NIGHTLY_LBACKUP_PATH" $NIGHTLY_LOCAL_PROFILE
-       echo "✅ Firefox Nightly backup completed: $NIGHTLY_LBACKUP_PATH"
-   else
-       echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
-   fi
+        echo "🔥 Backing up Firefox Nightly local profile..."
+        zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
+        echo "✅ Firefox Nightly backup completed: $NIGHTLY_LBACKUP_PATH"
+    else
+        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
+    fi
 
-   # Forcefully exit the script
-   exit 0
+    echo "🔄 Exiting script after backup..."
+    
+    # Forcefully exit the script
+    exit 0
 }
 
 # Trap Ctrl+C (SIGINT) to trigger backup_on_exit function
