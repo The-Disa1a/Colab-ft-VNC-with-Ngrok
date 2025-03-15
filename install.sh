@@ -85,7 +85,7 @@ backup_on_exit() {
     # Backup Firefox Root Profile
     if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly profile..."
-        zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
+        zip -r -q "$NIGHTLY_RBACKUP_PATH" ~/.mozilla/firefox
         echo "✅ Firefox Nightly backup completed: $NIGHTLY_RBACKUP_PATH"
     else
         echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_ROOT_PROFILE"
@@ -94,7 +94,7 @@ backup_on_exit() {
     # Backup Firefox Local Profile
     if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly local profile..."
-        zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
+        zip -r -q "$NIGHTLY_LBACKUP_PATH" ~/.cache/mozilla/firefox
         echo "✅ Firefox Nightly backup completed: $NIGHTLY_LBACKUP_PATH"
     else
         echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
