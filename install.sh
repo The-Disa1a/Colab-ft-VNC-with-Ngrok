@@ -56,7 +56,7 @@ setup_vnc() {
     export DISPLAY=:1
     /usr/bin/autocutsel -fork
     /usr/bin/autocutsel -selection PRIMARY -fork
-    ngrok tcp --region in  5901 > /dev/null 2>&1 &
+    ngrok tcp 5901 > /dev/null 2>&1 &
   
     echo "Setup completed."
 }
