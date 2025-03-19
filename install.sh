@@ -194,7 +194,7 @@ curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\
 # Main loop for live running time and automatic backup every 5 minutes
 start_time=$(date +%s)
 last_backup_time=$(date +%s)
-backup_interval=300  # 300 seconds = 5 minutes
+backup_interval=60  # 300 seconds = 5 minutes
 
 while true; do
     current_time=$(date +%s)
