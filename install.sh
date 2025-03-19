@@ -37,8 +37,35 @@ setup_vnc() {
     apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server > /dev/null 2>&1
     pip install playwright openai > /dev/null 2>&1
     python -m playwright install firefox > /dev/null 2>&1
-    sudo ln -sf ~/.cache/ms-playwright/firefox-1471/firefox/firefox /usr/local/bin/nightly
-    echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1475/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
+    # Automatically detect the latest Firefox Nightly folder from the Playwright cache
+   firefox_folder=$(find "$HOME/.cache/ms-playwright" -maxdepth 1 -type d -name 'firefox-*' | sort -r | head -n 1)
+
+   if [ -n "$firefox_folder" ]; then
+    # Create the symlink for the firefox binary (Nightly)
+    sudo ln -sf "$firefox_folder/firefox/firefox" /usr/local/bin/nightly
+
+    # Get just the folder name (e.g. firefox-1475)
+    firefox_folder_basename=$(basename "$firefox_folder")
+
+    # Create a dynamic desktop entry for Firefox Nightly
+    echo -e "[Desktop Entry]
+   Version=1.0
+   Name=Firefox Nightly
+   Comment=Browse the World Wide Web
+   Exec=$HOME/.cache/ms-playwright/$firefox_folder_basename/firefox/firefox %u
+   Icon=firefox
+   Terminal=false
+   Type=Application
+   Categories=Network;WebBrowser;Internet;
+   StartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
+
+    echo "Firefox Nightly desktop entry updated."
+   else
+    echo "Could not find Firefox Nightly installation directory."
+   fi
+
+    # sudo ln -sf ~/.cache/ms-playwright/firefox-1471/firefox/firefox /usr/local/bin/nightly
+    # echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1475/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
     echo "Installing and configuring Ngrok..."
     curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
     echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
