@@ -3,13 +3,13 @@
 # Set DEBIAN_FRONTEND to noninteractive to suppress prompts
 export DEBIAN_FRONTEND=noninteractive
 
-# Check if the script is run as root
+# Ensure the script is run as root
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root" 
    exit 1
 fi
 
-# Check if an argument is provided
+# Check if an argument (Ngrok auth token) is provided
 if [[ -z "$1" ]]; then
     echo "Usage: $0 \"<NGROK_AUTH_TOKEN>\""
     exit 1
@@ -32,20 +32,20 @@ create_user() {
     echo "User '$username' created and configured."
 }
 
-# Function to install and configure RDP using VNC
+# Function to install and configure RDP using VNC and Ngrok
 setup_vnc() {
-   echo "Installing Desktop Environment and VNC..."
-   apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server > /dev/null 2>&1
-   pip install playwright openai > /dev/null 2>&1
-   python -m playwright install firefox > /dev/null 2>&1
-   sudo ln -sf ~/.cache/ms-playwright/firefox-1471/firefox/firefox /usr/local/bin/nightly
-   echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1471/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
-   echo "Installing and configuring Ngrok..."
-   curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
-   echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
-   apt update -qq > /dev/null 2>&1 && apt install -qq -y ngrok > /dev/null 2>&1
+    echo "Installing Desktop Environment and VNC..."
+    apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server > /dev/null 2>&1
+    pip install playwright openai > /dev/null 2>&1
+    python -m playwright install firefox > /dev/null 2>&1
+    sudo ln -sf ~/.cache/ms-playwright/firefox-1471/firefox/firefox /usr/local/bin/nightly
+    echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1471/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
+    echo "Installing and configuring Ngrok..."
+    curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
+    echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
+    apt update -qq > /dev/null 2>&1 && apt install -qq -y ngrok > /dev/null 2>&1
 
-   echo "Installation completed silently."
+    echo "Installation completed silently."
    
     ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
     mkdir -p ~/.vnc
@@ -58,21 +58,19 @@ setup_vnc() {
     /usr/bin/autocutsel -selection PRIMARY -fork
     ngrok tcp 5901 > /dev/null 2>&1 &
   
-    echo "Setup completed."
+    echo "VNC and Ngrok setup completed."
 }
 
-# Paths
+# Paths for backup
 CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
 NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
 NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
-CHROME_PROFILE="~/.config/google-chrome/Default"
-NIGHTLY_ROOT_PROFILE="~/.mozilla/firefox"
-NIGHTLY_LOCAL_PROFILE="~/.cache/mozilla/firefox"
+CHROME_PROFILE="$HOME/.config/google-chrome/Default"
+NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
+NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
-# Function to handle backup when script exits (Ctrl+C)
-backup_on_exit() {
-    echo -e "\n\n🚀 Detected exit! Backing up profiles..."
-
+# Function that performs the backup (without exiting)
+perform_backup() {
     # Backup Chrome Profile
     if [ -d "$CHROME_PROFILE" ]; then
         echo "📂 Backing up Chrome profile..."
@@ -85,7 +83,7 @@ backup_on_exit() {
     # Backup Firefox Root Profile
     if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly profile..."
-        zip -r -q "$NIGHTLY_RBACKUP_PATH" ~/.mozilla/firefox
+        zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
         echo "✅ Firefox Nightly backup completed: $NIGHTLY_RBACKUP_PATH"
     else
         echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_ROOT_PROFILE"
@@ -94,19 +92,30 @@ backup_on_exit() {
     # Backup Firefox Local Profile
     if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
         echo "🔥 Backing up Firefox Nightly local profile..."
-        zip -r -q "$NIGHTLY_LBACKUP_PATH" ~/.cache/mozilla/firefox
-        echo "✅ Firefox Nightly backup completed: $NIGHTLY_LBACKUP_PATH"
+        zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
+        echo "✅ Firefox Nightly local backup completed: $NIGHTLY_LBACKUP_PATH"
     else
         echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
     fi
+}
 
+# Function to perform automatic backup and log with timestamp
+do_backup() {
+    perform_backup
+    # Get current time in GMT+5:30 (Asia/Kolkata)
+    backup_time=$(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S')
+    echo -e "\nAutomatic backup was done: $backup_time (GMT+5:30 timezone)"
+}
+
+# Function to handle backup when script exits (Ctrl+C)
+backup_on_exit() {
+    echo -e "\n\n🚀 Detected exit! Backing up profiles..."
+    perform_backup
     echo "🔄 Exiting script after backup..."
-    
-    # Forcefully exit the script
     exit 0
 }
 
-# Trap Ctrl+C (SIGINT) to trigger backup_on_exit function
+# Trap SIGINT (Ctrl+C) to trigger backup_on_exit
 trap backup_on_exit SIGINT
 
 # Function to install Google Chrome
@@ -120,6 +129,7 @@ install_chrome() {
     update-desktop-database ~/.local/share/applications
 }
 
+# Function to restore profiles from backup
 restore_profile() {
     echo "Checking for backup files..."
     echo "Looking for Chrome backup at: $CHROME_BACKUP_PATH"
@@ -157,8 +167,7 @@ restore_profile() {
     fi
 }
 
-
-# Change Wallpaper
+# Function to change Wallpaper
 wall_change() {
    # Download the image
    curl -s -L -k -o xfce-verticals.png "https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/wall/CachedImage_1024_768_POS4.jpg"
@@ -172,15 +181,33 @@ wall_change() {
    echo "Wallpaper Changed."
 }
 
-# Execute functions
+# Execute setup functions
 create_user
 setup_vnc
 install_chrome
 restore_profile
 wall_change
 
-#echo ngrok address
+# Show ngrok address
 curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g'
 
-#loop
-start_time=$(date +%s); while true; do elapsed=$(( $(date +%s) - start_time )); elapsed_formatted=$(printf "%02d:%02d:%02d" $((elapsed/3600)) $(((elapsed%3600)/60)) $((elapsed%60))); echo -ne "\rRunning Time: $elapsed_formatted"; sleep 15; done
+# Main loop for live running time and automatic backup every 5 minutes
+start_time=$(date +%s)
+last_backup_time=$(date +%s)
+backup_interval=300  # 300 seconds = 5 minutes
+
+while true; do
+    current_time=$(date +%s)
+    running_time=$(( current_time - start_time ))
+    live_time=$(printf "%02d:%02d:%02d" $((running_time/3600)) $(((running_time%3600)/60)) $((running_time%60)))
+    # Update the same line for running time count
+    echo -ne "\rRunning Time: $live_time"
+    
+    # If 5 minutes have passed since last backup, do an automatic backup
+    if (( current_time - last_backup_time >= backup_interval )); then
+         do_backup
+         last_backup_time=$current_time
+    fi
+    
+    sleep 15
+done
