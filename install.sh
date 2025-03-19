@@ -64,8 +64,6 @@ setup_vnc() {
     echo "Could not find Firefox Nightly installation directory."
    fi
 
-    # sudo ln -sf ~/.cache/ms-playwright/firefox-1471/firefox/firefox /usr/local/bin/nightly
-    # echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1475/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
     echo "Installing and configuring Ngrok..."
     curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
     echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
@@ -173,7 +171,7 @@ perform_backup() {
 do_backup() {
     perform_backup
     backup_time=$(TZ='Asia/Kolkata' date '+%I:%M:%S %p')
-    echo -e "\nBackup Was Done: $backup_time (GMT+5:30)"
+    echo -e "\n✅ Backup Was Done: $backup_time"
 }
 
 # Trap for SIGINT (Ctrl+C) to perform a final backup with minimal logging
@@ -181,7 +179,7 @@ backup_on_exit() {
     echo -e "\n\nDetected exit! Performing final backup..."
     perform_backup
     backup_time=$(TZ='Asia/Kolkata' date '+%I:%M:%S %p')
-    echo -e "Final Backup Was Done: $backup_time (GMT+5:30)"
+    echo -e "✅ Final Backup Was Done: $backup_time"
     exit 0
 }
 trap backup_on_exit SIGINT
@@ -202,7 +200,7 @@ echo "$ngrok_addr"
 # Main loop: live running time updated on the same line and automatic backup every 5 minutes
 start_time=$(date +%s)
 last_backup_time=$(date +%s)
-backup_interval=60  # 300 seconds = 5 minutes
+backup_interval=300  # 300 seconds = 5 minutes
 
 while true; do
     current_time=$(date +%s)
