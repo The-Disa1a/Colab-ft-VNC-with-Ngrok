@@ -15,7 +15,6 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
-# Assign the first argument as the Ngrok auth token
 NGROK_AUTH_TOKEN="$1"
 
 # Function to create user
@@ -39,7 +38,7 @@ setup_vnc() {
     pip install playwright openai > /dev/null 2>&1
     python -m playwright install firefox > /dev/null 2>&1
     sudo ln -sf ~/.cache/ms-playwright/firefox-1471/firefox/firefox /usr/local/bin/nightly
-    echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1471/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
+    echo -e "[Desktop Entry]\nVersion=1.0\nName=Firefox Nightly\nComment=Browse the World Wide Web\nExec=/root/.cache/ms-playwright/firefox-1475/firefox/firefox %u\nIcon=firefox\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;Internet;\nStartupWMClass=Firefox" | sudo tee /usr/share/applications/firefox-nightly.desktop > /dev/null && sudo chmod +x /usr/share/applications/firefox-nightly.desktop
     echo "Installing and configuring Ngrok..."
     curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc > /dev/null 2>&1
     echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list > /dev/null 2>&1
@@ -52,7 +51,7 @@ setup_vnc() {
     echo "123456" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
     export USER=root
-    vncserver -geometry 1200x900 -depth 16 :1
+    vncserver -geometry 1200x900 :1
     export DISPLAY=:1
     /usr/bin/autocutsel -fork
     /usr/bin/autocutsel -selection PRIMARY -fork
@@ -60,63 +59,6 @@ setup_vnc() {
   
     echo "VNC and Ngrok setup completed."
 }
-
-# Paths for backup
-CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
-NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
-NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
-CHROME_PROFILE="$HOME/.config/google-chrome/Default"
-NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
-NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
-
-# Function that performs the backup (without exiting)
-perform_backup() {
-    # Backup Chrome Profile
-    if [ -d "$CHROME_PROFILE" ]; then
-        echo "📂 Backing up Chrome profile..."
-        zip -r -q "$CHROME_BACKUP_PATH" "$CHROME_PROFILE"
-        echo "✅ Chrome backup completed: $CHROME_BACKUP_PATH"
-    else
-        echo "⚠️ No Chrome profile found to backup!"
-    fi
-
-    # Backup Firefox Root Profile
-    if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
-        echo "🔥 Backing up Firefox Nightly profile..."
-        zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
-        echo "✅ Firefox Nightly backup completed: $NIGHTLY_RBACKUP_PATH"
-    else
-        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_ROOT_PROFILE"
-    fi
-
-    # Backup Firefox Local Profile
-    if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
-        echo "🔥 Backing up Firefox Nightly local profile..."
-        zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
-        echo "✅ Firefox Nightly local backup completed: $NIGHTLY_LBACKUP_PATH"
-    else
-        echo "⚠️ No Firefox Nightly profile found to backup at: $NIGHTLY_LOCAL_PROFILE"
-    fi
-}
-
-# Function to perform automatic backup and log with timestamp
-do_backup() {
-    perform_backup
-    # Get current time in GMT+5:30 (Asia/Kolkata)
-    backup_time=$(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S')
-    echo -e "\nAutomatic backup was done: $backup_time (GMT+5:30 timezone)"
-}
-
-# Function to handle backup when script exits (Ctrl+C)
-backup_on_exit() {
-    echo -e "\n\n🚀 Detected exit! Backing up profiles..."
-    perform_backup
-    echo "🔄 Exiting script after backup..."
-    exit 0
-}
-
-# Trap SIGINT (Ctrl+C) to trigger backup_on_exit
-trap backup_on_exit SIGINT
 
 # Function to install Google Chrome
 install_chrome() {
@@ -132,9 +74,16 @@ install_chrome() {
 # Function to restore profiles from backup
 restore_profile() {
     echo "Checking for backup files..."
-    echo "Looking for Chrome backup at: $CHROME_BACKUP_PATH"
-    echo "Looking for Firefox root backup at: $NIGHTLY_RBACKUP_PATH"
-    echo "Looking for Firefox local backup at: $NIGHTLY_LBACKUP_PATH"
+    echo "Looking for Chrome backup at: /content/drive/MyDrive/Profiles/ChromeBackup.zip"
+    echo "Looking for Firefox root backup at: /content/drive/MyDrive/Profiles/RNightly.zip"
+    echo "Looking for Firefox local backup at: /content/drive/MyDrive/Profiles/LNightly.zip"
+
+    CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
+    NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
+    NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
+    CHROME_PROFILE="$HOME/.config/google-chrome/Default"
+    NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
+    NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
     if [[ -f "$CHROME_BACKUP_PATH" ]]; then
         echo "📂 Chrome profile backup found! Restoring..."
@@ -169,41 +118,74 @@ restore_profile() {
 
 # Function to change Wallpaper
 wall_change() {
-   # Download the image
    curl -s -L -k -o xfce-verticals.png "https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/wall/CachedImage_1024_768_POS4.jpg"
-
-   # Define paths
    CUSTOM_WALLPAPER_PATH="$(pwd)/xfce-verticals.png"
    DESTINATION_PATH="/usr/share/backgrounds/xfce/"
-
-   # Copy the image to the destination
    sudo cp "$CUSTOM_WALLPAPER_PATH" "$DESTINATION_PATH"
    echo "Wallpaper Changed."
 }
 
-# Execute setup functions
+# ----------------- Backup Functions (Minimal Logging) -----------------
+
+# Define backup paths and profiles
+CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
+NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
+NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
+CHROME_PROFILE="$HOME/.config/google-chrome/Default"
+NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
+NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
+
+# Perform the backup silently
+perform_backup() {
+    [ -d "$CHROME_PROFILE" ] && zip -r -q "$CHROME_BACKUP_PATH" "$CHROME_PROFILE"
+    [ -d "$NIGHTLY_ROOT_PROFILE" ] && zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
+    [ -d "$NIGHTLY_LOCAL_PROFILE" ] && zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
+}
+
+# Call backup and then print a single summary log with a 12-hour timestamp (GMT+5:30)
+do_backup() {
+    perform_backup
+    backup_time=$(TZ='Asia/Kolkata' date '+%I:%M:%S %p')
+    echo -e "\nBackup Was Done: $backup_time (GMT+5:30)"
+}
+
+# Trap for SIGINT (Ctrl+C) to perform a final backup with minimal logging
+backup_on_exit() {
+    echo -e "\n\nDetected exit! Performing final backup..."
+    perform_backup
+    backup_time=$(TZ='Asia/Kolkata' date '+%I:%M:%S %p')
+    echo -e "Final Backup Was Done: $backup_time (GMT+5:30)"
+    exit 0
+}
+trap backup_on_exit SIGINT
+
+# ----------------- End Backup Functions -----------------
+
+# Execute initial setup functions
 create_user
 setup_vnc
 install_chrome
 restore_profile
 wall_change
 
-# Show ngrok address
-curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g'
+# Show Ngrok address
+ngrok_addr=$(curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g')
+echo "$ngrok_addr"
 
-# Main loop for live running time and automatic backup every 5 minutes
+# Main loop: live running time updated on the same line and automatic backup every 5 minutes
 start_time=$(date +%s)
 last_backup_time=$(date +%s)
-backup_interval=60  # 300 seconds = 5 minutes
+backup_interval=300  # 300 seconds = 5 minutes
 
 while true; do
     current_time=$(date +%s)
     running_time=$(( current_time - start_time ))
     live_time=$(printf "%02d:%02d:%02d" $((running_time/3600)) $(((running_time%3600)/60)) $((running_time%60)))
-    # Update the same line for running time count
+    
+    # Update running time on the same line
     echo -ne "\rRunning Time: $live_time"
     
-    # If 5 minutes have passed since last backup, do an automatic backup
+    # Check if 5 minutes have passed and perform backup if so
     if (( current_time - last_backup_time >= backup_interval )); then
          do_backup
          last_backup_time=$current_time
