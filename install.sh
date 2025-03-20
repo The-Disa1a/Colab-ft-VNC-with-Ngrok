@@ -200,7 +200,7 @@ echo "$ngrok_addr"
 # Main loop: live running time updated on the same line and automatic backup every 5 minutes
 start_time=$(date +%s)
 last_backup_time=$(date +%s)
-backup_interval=60  # 300 seconds = 5 minutes
+backup_interval=3600  # 3600 seconds = 60 minutes
 
 while true; do
     current_time=$(date +%s)
