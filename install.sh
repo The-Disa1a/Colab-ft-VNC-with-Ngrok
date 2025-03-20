@@ -162,9 +162,9 @@ NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
 # Perform the backup silently
 perform_backup() {
-    [ -d "$CHROME_PROFILE" ] && zip -r -q "$CHROME_BACKUP_PATH" "$CHROME_PROFILE"
-    [ -d "$NIGHTLY_ROOT_PROFILE" ] && zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
-    [ -d "$NIGHTLY_LOCAL_PROFILE" ] && zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
+    [ -d "$CHROME_PROFILE" ] && rm -f "$CHROME_BACKUP_PATH" && zip -r -q "$CHROME_BACKUP_PATH" "$CHROME_PROFILE"
+    [ -d "$NIGHTLY_ROOT_PROFILE" ] && rm -f "$NIGHTLY_RBACKUP_PATH" && zip -r -q "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_ROOT_PROFILE"
+    [ -d "$NIGHTLY_LOCAL_PROFILE" ] && rm -f "$NIGHTLY_LBACKUP_PATH" && zip -r -q "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_LOCAL_PROFILE"
 }
 
 # Call backup and then print a single summary log with a 12-hour timestamp (GMT+5:30)
@@ -200,7 +200,7 @@ echo "$ngrok_addr"
 # Main loop: live running time updated on the same line and automatic backup every 5 minutes
 start_time=$(date +%s)
 last_backup_time=$(date +%s)
-backup_interval=300  # 300 seconds = 5 minutes
+backup_interval=60  # 300 seconds = 5 minutes
 
 while true; do
     current_time=$(date +%s)
