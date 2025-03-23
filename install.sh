@@ -14,8 +14,14 @@ if [[ -z "$1" ]]; then
     echo "Usage: $0 \"<NGROK_AUTH_TOKEN>\""
     exit 1
 fi
+# Check if an argument (Ngrok region) is provided
+if [[ -z "$2" ]]; then
+    echo "Usage: $0 \"REGION>\""
+    exit 1
+fi
 
 NGROK_AUTH_TOKEN="$1"
+REGION="$2"
 
 # Function to create user
 create_user() {
@@ -80,38 +86,7 @@ setup_vnc() {
     export DISPLAY=:1
     /usr/bin/autocutsel -fork
     /usr/bin/autocutsel -selection PRIMARY -fork
-    # List of ngrok regions to try
-   regions=("in" "ap" "us" "eu" "sa" "jp" "au")
-
-   # Function to start ngrok with a given region
-   start_ngrok() {
-    local region=$1
-    echo "Trying region: $region"
-    ngrok tcp --region "$region" 5901 > /dev/null 2>&1 &
-    sleep 5  # Give ngrok some time to start
-
-    # Check if ngrok is running properly
-    if pgrep -f "ngrok tcp" > /dev/null; then
-        echo "Ngrok started successfully in region: $region"
-        return 0
-    else
-        echo "Failed to start ngrok in region: $region"
-        return 1
-    fi
-      }
-
-   # Loop through regions and try starting ngrok
-   for region in "${regions[@]}"; do
-    start_ngrok "$region"
-    if [ $? -eq 0 ]; then
-        exit 0  # Exit if successful
-    fi
-    sleep 2  # Small delay before retrying
-   done
-
-   echo "All regions failed. Exiting."
-   exit 1
-    # ngrok tcp 5901 > /dev/null 2>&1 &
+    ngrok tcp --region $REGION 5901 > /dev/null 2>&1 &
   
     echo "VNC and Ngrok setup completed."
 }
