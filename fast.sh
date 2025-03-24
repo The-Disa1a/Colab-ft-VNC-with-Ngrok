@@ -3,7 +3,7 @@ sudo apt install tigervnc-standalone-server -y
 echo "123456" | vncpasswd -f > ~/.vnc/passwd
 chmod 600 ~/.vnc/passwd
 vncserver :1
-ngrok config add-authtoken 2La5clGyFRFBCOsZaJRgg1Q9J9l_msXpseMtGPWn3n1oo3Cu
+ngrok config add-authtoken 2P8v3I9oxTnCsnsVcKIOjd9Rt4Y_5jzoNH4hQQNfWcR8iQz8i
 ngrok tcp --region ap  5901 > /dev/null 2>&1 &
 sleep 5
 curl -s http://127.0.0.1:4040/api/tunnels | grep -o '"tcp://[^"]*' | sed 's/tcp:\/\///'
