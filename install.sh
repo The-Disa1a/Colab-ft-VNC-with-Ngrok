@@ -156,6 +156,15 @@ wall_change() {
    echo "Wallpaper Changed."
 }
 
+# Funtion to install vscode
+vs_code() {
+   sudo apt update && sudo apt install wget gpg
+   wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null
+   echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+   sudo apt update && sudo apt install code
+   code --no-sandbox --user-data-dir ~/.vscode-root
+}
+
 # ----------------- Backup Functions (Minimal Logging) -----------------
 # Define drive backup paths
 CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
@@ -249,6 +258,7 @@ create_user
 setup_vnc
 install_chrome
 restore_profile
+vs_code
 wall_change
 
 # Show Ngrok address
