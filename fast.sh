@@ -15,7 +15,7 @@ python -m playwright install firefox
 chmod 600 ~/.vnc/passwd
 vncserver :1
 ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
-ngrok tcp --region ap 5901 > /dev/null 2>&1 &
+ngrok tcp 5901 > /dev/null 2>&1 &
 echo -e "[Desktop Entry]
    Version=1.0
    Name=Firefox Nightly
