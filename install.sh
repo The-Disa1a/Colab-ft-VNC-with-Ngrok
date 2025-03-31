@@ -162,7 +162,11 @@ vs_code() {
    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null
    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
    sudo apt update && sudo apt install code
-   code --no-sandbox --user-data-dir ~/.vscode-root
+   echo 'alias code="code --no-sandbox --user-data-dir ~/.vscode-root"' >> ~/.bashrc
+   source ~/.bashrc
+   sudo sed -i 's|^Exec=/usr/share/code/code.*|Exec=/usr/share/code/code --no-sandbox --user-data-dir ~/.vscode-root %F|' /usr/share/applications/code.desktop
+   sudo chmod -R 777 /root/.local/share/applications
+   update-desktop-database ~/.local/share/applications
 }
 
 # ----------------- Backup Functions (Minimal Logging) -----------------
