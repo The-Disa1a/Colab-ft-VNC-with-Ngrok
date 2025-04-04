@@ -9,19 +9,22 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Check if an argument (Ngrok auth token) is provided
+# Check if Ngrok auth token is provided
 if [[ -z "$1" ]]; then
-    echo "Usage: $0 \"<NGROK_AUTH_TOKEN>\""
+    echo "Usage: $0 <NGROK_AUTH_TOKEN> <REGION> [BOT_API_TOKEN] [CHAT_ID]"
     exit 1
 fi
-# Check if an argument (Ngrok region) is provided
+
+# Check if region is provided
 if [[ -z "$2" ]]; then
-    echo "Usage: $0 \"REGION>\""
+    echo "Usage: $0 <NGROK_AUTH_TOKEN> <REGION> [BOT_API_TOKEN] [CHAT_ID]"
     exit 1
 fi
 
 NGROK_AUTH_TOKEN="$1"
 REGION="$2"
+API="$3"
+CHAT_ID="$4"
 
 # Function to create user
 create_user() {
@@ -41,7 +44,7 @@ create_user() {
 setup_vnc() {
     echo "Installing Desktop Environment and VNC..."
     apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server > /dev/null 2>&1
-    pip install playwright openai > /dev/null 2>&1
+    pip install playwright openai pyTelegramBotAPI > /dev/null 2>&1
     python -m playwright install firefox > /dev/null 2>&1
     # Automatically detect the latest Firefox Nightly folder from the Playwright cache
    firefox_folder=$(find "$HOME/.cache/ms-playwright" -maxdepth 1 -type d -name 'firefox-*' | sort -r | head -n 1)
@@ -268,6 +271,23 @@ wall_change
 # Show Ngrok address
 ngrok_addr=$(curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g')
 echo "$ngrok_addr"
+
+# Prepare timestamp
+datetime=$(TZ=Asia/Colombo date "+%Y-%m-%d : %H:%M")
+message="*Ngrok TCP Endpoint URL*\n$datetime\n\`\`\`\n$ngrok_addr\n\`\`\`"
+
+# Check if API and CHAT_ID are provided
+if [[ -n "$API" && -n "$CHAT_ID" ]]; then
+    # Send Telegram message if both API and CHAT_ID are provided
+    echo "Sending Telegram message..."
+    curl -s -X POST "https://api.telegram.org/bot$API/sendMessage" \
+         -d chat_id="$CHAT_ID" \
+         -d parse_mode=Markdown \
+         -d text="$message"
+else
+    # Skip sending message if API or CHAT_ID is empty
+    echo -e "\n[Info] Bot API or Chat ID not provided. Skipping Telegram message."
+fi
 
 # Main loop: live running time updated on the same line and automatic backup every 5 minutes
 start_time=$(date +%s)
