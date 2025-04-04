@@ -161,15 +161,17 @@ wall_change() {
 
 # Funtion to install vscode
 vs_code() {
-   sudo apt update && sudo apt install wget gpg > /dev/null 2>&1
-   wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null
+   sudo apt update -y > /dev/null 2>&1
+   sudo apt install wget gpg -y > /dev/null 2>&1
+   wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null 2>&1
    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null 2>&1
-   sudo apt update && sudo apt install code > /dev/null 2>&1
+   sudo apt update -y > /dev/null 2>&1
+   sudo apt install code -y > /dev/null 2>&1
    echo 'alias code="code --no-sandbox --user-data-dir ~/.vscode-root"' >> ~/.bashrc > /dev/null 2>&1
-   source ~/.bashrc
-   sudo sed -i 's|^Exec=/usr/share/code/code.*|Exec=/usr/share/code/code --no-sandbox --user-data-dir ~/.vscode-root %F|' /usr/share/applications/code.desktop
-   sudo chmod -R 777 /root/.local/share/applications
-   update-desktop-database ~/.local/share/applications
+   source ~/.bashrc > /dev/null 2>&1
+   sudo sed -i 's|^Exec=/usr/share/code/code.*|Exec=/usr/share/code/code --no-sandbox --user-data-dir ~/.vscode-root %F|' /usr/share/applications/code.desktop > /dev/null 2>&1
+   sudo chmod -R 777 /root/.local/share/applications > /dev/null 2>&1
+   update-desktop-database ~/.local/share/applications > /dev/null 2>&1
 }
 
 # ----------------- Backup Functions (Minimal Logging) -----------------
