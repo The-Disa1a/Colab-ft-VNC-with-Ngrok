@@ -280,7 +280,7 @@ time_str=$(TZ=Asia/Colombo date "+%I:%M %p")
 
 # Build the message with proper formatting:
 # Bold labels and inline monospace for the URL
-message="*Ngrok TCP Endpoint URL*\n*DATE :* $date_str\n*TIME :* $time_str\n*URL :* \`$ngrok_addr\`"
+message="*Ngrok TCP Endpoint URL*%0A*DATE :* $date_str%0A*TIME :* $time_str%0A*URL :* \`$ngrok_addr\`"
 
 # Send Telegram message if both API and CHAT_ID are provided
 if [[ -n "$API" && -n "$CHAT_ID" ]]; then
