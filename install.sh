@@ -274,20 +274,22 @@ wall_change
 ngrok_addr=$(curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g')
 echo "$ngrok_addr"
 
-# Prepare timestamp in 12-hour format with AM/PM
-datetime=$(TZ=Asia/Colombo date "+%Y-%m-%d : %I:%M %p")
-message="*Ngrok TCP Endpoint URL*\n$datetime\n\`\`\`\n$ngrok_addr\n\`\`\`"
+# Prepare date and time separately
+date_str=$(TZ=Asia/Colombo date "+%Y-%m-%d")
+time_str=$(TZ=Asia/Colombo date "+%I:%M %p")
 
-# Check if API and CHAT_ID are provided
+# Build the message with proper formatting:
+# Bold labels and inline monospace for the URL
+message="*Ngrok TCP Endpoint URL*\n*DATE :* $date_str\n*TIME :* $time_str\n*URL :* \`$ngrok_addr\`"
+
+# Send Telegram message if both API and CHAT_ID are provided
 if [[ -n "$API" && -n "$CHAT_ID" ]]; then
-    # Send Telegram message if both API and CHAT_ID are provided
     echo "Sending Telegram message..."
     curl -s -X POST "https://api.telegram.org/bot$API/sendMessage" \
          -d chat_id="$CHAT_ID" \
          -d parse_mode=Markdown \
          -d text="$message"
 else
-    # Skip sending message if API or CHAT_ID is empty
     echo -e "\n[Info] Bot API or Chat ID not provided. Skipping Telegram message."
 fi
 
