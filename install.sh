@@ -274,8 +274,8 @@ wall_change
 ngrok_addr=$(curl -s http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://[^"]*' | sed 's/tcp:\/\///; s/"//g')
 echo "$ngrok_addr"
 
-# Prepare timestamp
-datetime=$(TZ=Asia/Colombo date "+%Y-%m-%d : %H:%M")
+# Prepare timestamp in 12-hour format with AM/PM
+datetime=$(TZ=Asia/Colombo date "+%Y-%m-%d : %I:%M %p")
 message="*Ngrok TCP Endpoint URL*\n$datetime\n\`\`\`\n$ngrok_addr\n\`\`\`"
 
 # Check if API and CHAT_ID are provided
