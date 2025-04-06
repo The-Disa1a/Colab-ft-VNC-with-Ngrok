@@ -285,10 +285,18 @@ message="*Ngrok TCP Endpoint URL*%0A*DATE :* $date_str%0A*TIME :* $time_str%0A*U
 # Send Telegram message if both API and CHAT_ID are provided
 if [[ -n "$API" && -n "$CHAT_ID" ]]; then
     echo "Sending Telegram message..."
-    curl -s -X POST "https://api.telegram.org/bot$API/sendMessage" \
-         -d chat_id="$CHAT_ID" \
-         -d parse_mode=Markdown \
-         -d text="$message"
+    
+    # Split the CHAT_ID into an array by commas
+    IFS=',' read -r -a chat_ids <<< "$CHAT_ID"
+    
+    # Loop through each chat ID and send the message
+    for chat_id in "${chat_ids[@]}"; do
+        curl -s -X POST "https://api.telegram.org/bot$API/sendMessage" \
+             -d chat_id="$chat_id" \
+             -d parse_mode=Markdown \
+             -d text="$message"
+        echo "Message sent to chat ID: $chat_id"
+    done
 else
     echo -e "\n[Info] Bot API or Chat ID not provided. Skipping Telegram message."
 fi
