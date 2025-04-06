@@ -294,7 +294,7 @@ if [[ -n "$API" && -n "$CHAT_ID" ]]; then
         curl -s -X POST "https://api.telegram.org/bot$API/sendMessage" \
              -d chat_id="$chat_id" \
              -d parse_mode=Markdown \
-             -d text="$message"
+             -d text="$message" > /dev/null 2>&1
         echo "Message sent to chat ID: $chat_id"
     done
 else
