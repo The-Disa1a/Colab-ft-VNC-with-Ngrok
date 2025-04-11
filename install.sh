@@ -192,7 +192,7 @@ TMP_NIGHTLY_RBACKUP="/tmp/RNightly.zip"
 TMP_NIGHTLY_LBACKUP="/tmp/LNightly.zip"
 
 # Define profiles
-CHROME_PROFILES=$(find "$HOME/.config/google-chrome" -maxdepth 1 -type d \( -name 'Profile *' -o -name 'Default' \))
+readarray -t CHROME_PROFILES < <(find "$HOME/.config/google-chrome" -maxdepth 1 -type d \( -name 'Profile *' -o -name 'Default' \))
 NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
 NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
@@ -201,9 +201,9 @@ perform_backup() {
     backup_success=1
 
     # ----------------- Chrome Backup -----------------
-    if [ -n "$CHROME_PROFILES" ]; then
+    if [ ${#CHROME_PROFILES[@]} -gt 0 ]; then
         echo "Found Chrome profiles:"
-        echo "$CHROME_PROFILES"
+        printf "%s\n" "${CHROME_PROFILES[@]}"
 
         # Rename existing backup if it exists
         [ -f "$CHROME_BACKUP_PATH" ] && mv "$CHROME_BACKUP_PATH" "$CHROME_OLD_BACKUP"
@@ -212,7 +212,7 @@ perform_backup() {
         [ -f "$TMP_CHROME_BACKUP" ] && rm -f "$TMP_CHROME_BACKUP"
 
         # Zip all Chrome profiles into one archive
-        zip -r -q "$TMP_CHROME_BACKUP" $CHROME_PROFILES || backup_success=0
+        zip -r -q "$TMP_CHROME_BACKUP" "${CHROME_PROFILES[@]}" || backup_success=0
 
         # Move to Drive
         if [ $backup_success -eq 1 ]; then
@@ -242,7 +242,7 @@ perform_backup() {
 
     # ----------------- Cleanup Old Backups If Successful -----------------
     if [ $backup_success -eq 1 ]; then
-        echo "Backup successful. Cleaning up old backups..."
+        echo "✅ Backup successful. Cleaning up old backups..."
         [ -f "$CHROME_OLD_BACKUP" ] && rm -f "$CHROME_OLD_BACKUP"
         [ -f "$NIGHTLY_R_OLD_BACKUP" ] && rm -f "$NIGHTLY_R_OLD_BACKUP"
         [ -f "$NIGHTLY_L_OLD_BACKUP" ] && rm -f "$NIGHTLY_L_OLD_BACKUP"
