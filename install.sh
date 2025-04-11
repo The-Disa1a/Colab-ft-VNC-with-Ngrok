@@ -175,6 +175,7 @@ vs_code() {
 }
 
 # ----------------- Backup Functions (Minimal Logging) -----------------
+
 # Define drive backup paths
 CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
 NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
@@ -185,13 +186,13 @@ CHROME_OLD_BACKUP="/content/drive/MyDrive/Profiles/ChromeBackup.old.zip"
 NIGHTLY_R_OLD_BACKUP="/content/drive/MyDrive/Profiles/RNightly.old.zip"
 NIGHTLY_L_OLD_BACKUP="/content/drive/MyDrive/Profiles/LNightly.old.zip"
 
-# Define local temporary backup paths (inside Colab)
+# Define local temporary backup paths (inside Colab or local tmp)
 TMP_CHROME_BACKUP="/tmp/ChromeBackup.zip"
 TMP_NIGHTLY_RBACKUP="/tmp/RNightly.zip"
 TMP_NIGHTLY_LBACKUP="/tmp/LNightly.zip"
 
 # Define profiles
-CHROME_PROFILE="$HOME/.config/google-chrome/Default"
+CHROME_PROFILES=$(find "$HOME/.config/google-chrome" -maxdepth 1 -type d \( -name 'Profile *' -o -name 'Default' \))
 NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
 NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
@@ -199,21 +200,27 @@ NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 perform_backup() {
     backup_success=1
 
-    # Backup Chrome profile
-    if [ -d "$CHROME_PROFILE" ]; then
-        # Rename existing drive backup if it exists
+    # ----------------- Chrome Backup -----------------
+    if [ -n "$CHROME_PROFILES" ]; then
+        echo "Found Chrome profiles:"
+        echo "$CHROME_PROFILES"
+
+        # Rename existing backup if it exists
         [ -f "$CHROME_BACKUP_PATH" ] && mv "$CHROME_BACKUP_PATH" "$CHROME_OLD_BACKUP"
+
         # Remove any existing temporary file
         [ -f "$TMP_CHROME_BACKUP" ] && rm -f "$TMP_CHROME_BACKUP"
-        # Create new backup locally
-        zip -r -q "$TMP_CHROME_BACKUP" "$CHROME_PROFILE" || backup_success=0
-        # Move local backup to drive if zip succeeded
+
+        # Zip all Chrome profiles into one archive
+        zip -r -q "$TMP_CHROME_BACKUP" $CHROME_PROFILES || backup_success=0
+
+        # Move to Drive
         if [ $backup_success -eq 1 ]; then
             mv "$TMP_CHROME_BACKUP" "$CHROME_BACKUP_PATH" || backup_success=0
         fi
     fi
 
-    # Backup Firefox root profile (Nightly)
+    # ----------------- Firefox (Root Profile) Backup -----------------
     if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
         [ -f "$NIGHTLY_RBACKUP_PATH" ] && mv "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_R_OLD_BACKUP"
         [ -f "$TMP_NIGHTLY_RBACKUP" ] && rm -f "$TMP_NIGHTLY_RBACKUP"
@@ -223,7 +230,7 @@ perform_backup() {
         fi
     fi
 
-    # Backup Firefox local profile (Nightly)
+    # ----------------- Firefox (Local Profile) Backup -----------------
     if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
         [ -f "$NIGHTLY_LBACKUP_PATH" ] && mv "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_L_OLD_BACKUP"
         [ -f "$TMP_NIGHTLY_LBACKUP" ] && rm -f "$TMP_NIGHTLY_LBACKUP"
@@ -233,13 +240,14 @@ perform_backup() {
         fi
     fi
 
-    # If all backups succeeded, remove the old backups from drive
+    # ----------------- Cleanup Old Backups If Successful -----------------
     if [ $backup_success -eq 1 ]; then
+        echo "Backup successful. Cleaning up old backups..."
         [ -f "$CHROME_OLD_BACKUP" ] && rm -f "$CHROME_OLD_BACKUP"
         [ -f "$NIGHTLY_R_OLD_BACKUP" ] && rm -f "$NIGHTLY_R_OLD_BACKUP"
         [ -f "$NIGHTLY_L_OLD_BACKUP" ] && rm -f "$NIGHTLY_L_OLD_BACKUP"
     else
-        echo "One or more backups failed. Old backups have been retained."
+        echo "⚠️ One or more backups failed. Old backups have been retained."
     fi
 }
 
