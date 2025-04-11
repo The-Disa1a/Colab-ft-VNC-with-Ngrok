@@ -115,7 +115,7 @@ restore_profile() {
     CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
     NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
     NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
-    CHROME_PROFILE="$HOME/.config/google-chrome/Default"
+    CHROME_PROFILE="$HOME/.config/google-chrome"
     NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
     NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
@@ -192,28 +192,28 @@ TMP_NIGHTLY_RBACKUP="/tmp/RNightly.zip"
 TMP_NIGHTLY_LBACKUP="/tmp/LNightly.zip"
 
 # Define profiles
+CHROME_PROFILE="$HOME/.config/google-chrome"
 NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
 NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
 # Function to perform backup
 perform_backup() {
     backup_success=1
-    # Define profiles
-    readarray -t CHROME_PROFILES < <(find "$HOME/.config/google-chrome" -maxdepth 1 -type d \( -name 'Profile *' -o -name 'Default' \))
-    
+
     # ----------------- Chrome Backup -----------------
-    if [ ${#CHROME_PROFILES[@]} -gt 0 ]; then
+    if [ -d "$CHROME_PROFILE" ]; then
+        echo "Backing up Chrome from: $CHROME_PROFILE"
 
         # Rename existing backup if it exists
         [ -f "$CHROME_BACKUP_PATH" ] && mv "$CHROME_BACKUP_PATH" "$CHROME_OLD_BACKUP"
 
-        # Remove any existing temporary file
+        # Remove existing temp file
         [ -f "$TMP_CHROME_BACKUP" ] && rm -f "$TMP_CHROME_BACKUP"
 
-        # Zip all Chrome profiles into one archive
-        zip -r -q "$TMP_CHROME_BACKUP" "${CHROME_PROFILES[@]}" || backup_success=0
+        # Create ZIP of full Chrome config directory
+        zip -r -q "$TMP_CHROME_BACKUP" "$CHROME_PROFILE" || backup_success=0
 
-        # Move to Drive
+        # Move ZIP to drive
         if [ $backup_success -eq 1 ]; then
             mv "$TMP_CHROME_BACKUP" "$CHROME_BACKUP_PATH" || backup_success=0
         fi
@@ -221,6 +221,7 @@ perform_backup() {
 
     # ----------------- Firefox (Root Profile) Backup -----------------
     if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
+        echo "Backing up Firefox root profile..."
         [ -f "$NIGHTLY_RBACKUP_PATH" ] && mv "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_R_OLD_BACKUP"
         [ -f "$TMP_NIGHTLY_RBACKUP" ] && rm -f "$TMP_NIGHTLY_RBACKUP"
         zip -r -q "$TMP_NIGHTLY_RBACKUP" "$NIGHTLY_ROOT_PROFILE" || backup_success=0
@@ -231,6 +232,7 @@ perform_backup() {
 
     # ----------------- Firefox (Local Profile) Backup -----------------
     if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
+        echo "Backing up Firefox local profile..."
         [ -f "$NIGHTLY_LBACKUP_PATH" ] && mv "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_L_OLD_BACKUP"
         [ -f "$TMP_NIGHTLY_LBACKUP" ] && rm -f "$TMP_NIGHTLY_LBACKUP"
         zip -r -q "$TMP_NIGHTLY_LBACKUP" "$NIGHTLY_LOCAL_PROFILE" || backup_success=0
