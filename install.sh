@@ -203,8 +203,6 @@ perform_backup() {
     
     # ----------------- Chrome Backup -----------------
     if [ ${#CHROME_PROFILES[@]} -gt 0 ]; then
-        echo "Found Chrome profiles:"
-        printf "%s\n" "${CHROME_PROFILES[@]}"
 
         # Rename existing backup if it exists
         [ -f "$CHROME_BACKUP_PATH" ] && mv "$CHROME_BACKUP_PATH" "$CHROME_OLD_BACKUP"
