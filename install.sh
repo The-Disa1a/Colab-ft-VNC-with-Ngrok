@@ -115,7 +115,7 @@ restore_profile() {
     CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
     NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
     NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
-    CHROME_PROFILE="$HOME/.config/google-chrome/Default"
+    CHROME_PROFILE="$HOME/.config/google-chrome"
     NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
     NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
@@ -191,7 +191,7 @@ TMP_NIGHTLY_RBACKUP="/tmp/RNightly.zip"
 TMP_NIGHTLY_LBACKUP="/tmp/LNightly.zip"
 
 # Define profiles
-CHROME_PROFILE="$HOME/.config/google-chrome/Default"
+CHROME_PROFILE="$HOME/.config/google-chrome"
 NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
 NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
