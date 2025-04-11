@@ -192,14 +192,15 @@ TMP_NIGHTLY_RBACKUP="/tmp/RNightly.zip"
 TMP_NIGHTLY_LBACKUP="/tmp/LNightly.zip"
 
 # Define profiles
-readarray -t CHROME_PROFILES < <(find "$HOME/.config/google-chrome" -maxdepth 1 -type d \( -name 'Profile *' -o -name 'Default' \))
 NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
 NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
 
 # Function to perform backup
 perform_backup() {
     backup_success=1
-
+    # Define profiles
+    readarray -t CHROME_PROFILES < <(find "$HOME/.config/google-chrome" -maxdepth 1 -type d \( -name 'Profile *' -o -name 'Default' \))
+    
     # ----------------- Chrome Backup -----------------
     if [ ${#CHROME_PROFILES[@]} -gt 0 ]; then
         echo "Found Chrome profiles:"
