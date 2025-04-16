@@ -317,5 +317,5 @@ while true; do
          last_backup_time=$current_time
     fi
     
-    sleep 15
+    sleep 10
 done
