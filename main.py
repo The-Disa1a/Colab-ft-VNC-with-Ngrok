@@ -41,7 +41,6 @@ def zip_folder(folder_path, zip_path):
                 file_path = os.path.join(root, file)
                 if not os.path.islink(file_path):  # Skip symlinks (e.g., 'lock' files)
                     arcname = os.path.relpath(file_path, folder_path)
-                    print(f"[DEBUG] Adding file: {file_path} as {arcname}")
                     zipf.write(file_path, arcname)
 
 def unzip_folder(zip_path, extract_to):
