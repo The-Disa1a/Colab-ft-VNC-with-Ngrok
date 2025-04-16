@@ -39,46 +39,56 @@ def zip_folder(folder_path, zip_path):
         for root, _, files in os.walk(folder_path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if not os.path.islink(file_path):  # Skip symlinks (e.g., 'lock' files)
+                if not os.path.islink(file_path):  # Skip symlinks
                     arcname = os.path.relpath(file_path, folder_path)
                     zipf.write(file_path, arcname)
 
 def unzip_folder(zip_path, extract_to):
+    """Unzip archive to extract_to. Ensure path exists before restoring."""
     if os.path.exists(extract_to):
+        print(f"[DEBUG] Removing existing folder {extract_to} before restore")
         shutil.rmtree(extract_to)
+
+    print(f"[DEBUG] Creating target restore folder {extract_to}")
+    os.makedirs(extract_to, exist_ok=True)
+
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall("/")
+        print(f"[DEBUG] Extracting {zip_path} to / (root)")
+        zip_ref.extractall("/")  # Assuming absolute paths stored in archive
 
 def backup():
     print("🗂️ Starting backup...")
     for name, paths in backups.items():
         if os.path.isdir(paths["src"]):
             tmp_backup = f"/tmp/{os.path.basename(paths['dst'])}"
-            # If current backup exists, move it to "old"
+
+            # Move current to old
             if os.path.exists(paths["dst"]):
-                print(f"[DEBUG] Moving current backup '{paths['dst']}' to old backup '{paths['old']}'")
+                print(f"[DEBUG] Moving current backup '{paths['dst']}' to '{paths['old']}'")
                 shutil.move(paths["dst"], paths["old"])
+
             if os.path.exists(tmp_backup):
-                print(f"[DEBUG] Removing temporary backup file {tmp_backup}")
+                print(f"[DEBUG] Removing stale temp backup: {tmp_backup}")
                 os.remove(tmp_backup)
-            
-            print(f"[DEBUG] Creating backup for {name} profile from {paths['src']}")
+
+            print(f"[DEBUG] Creating backup for {name}")
             zip_folder(paths["src"], tmp_backup)
             shutil.move(tmp_backup, paths["dst"])
             print(f"✅ {name} profile backed up to {paths['dst']}.")
 
-            # After a successful backup, delete the old backup file if it exists
+            # Remove old after successful backup
             if os.path.exists(paths["old"]):
                 os.remove(paths["old"])
-                print(f"[DEBUG] Old backup '{paths['old']}' deleted.")
+                print(f"[DEBUG] Deleted old backup: {paths['old']}")
         else:
-            print(f"[WARNING] Source folder for {name} does not exist: {paths['src']}")
+            print(f"[WARNING] Source for {name} does not exist: {paths['src']}")
     log_time("✅ Backup complete at")
 
 def restore():
     print("🗃️ Starting restore...")
     for name, paths in backups.items():
         if os.path.exists(paths["dst"]):
+            print(f"[DEBUG] Restoring {name} from {paths['dst']}")
             unzip_folder(paths["dst"], paths["src"])
             print(f"✅ {name} profile restored.")
         else:
