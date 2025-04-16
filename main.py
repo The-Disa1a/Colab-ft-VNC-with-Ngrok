@@ -32,13 +32,14 @@ backups = {
     },
 }
 
-def zip_folder(source_folder, zip_path):
+def zip_folder(folder_path, zip_path):
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, _, files in os.walk(source_folder):
+        for root, _, files in os.walk(folder_path):
             for file in files:
                 file_path = os.path.join(root, file)
-                arcname = os.path.relpath(file_path, start=source_folder)
-                zipf.write(file_path, arcname)
+                if not os.path.islink(file_path):  # ✅ Skip symlinks
+                    arcname = os.path.relpath(file_path, folder_path)
+                    zipf.write(file_path, arcname)
 
 def unzip_folder(zip_path, extract_to):
     if os.path.exists(extract_to):
