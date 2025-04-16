@@ -45,13 +45,10 @@ def zip_folder(folder_path, zip_path):
                     zipf.write(file_path, arcname)
 
 def unzip_folder(zip_path, extract_to):
-    """Extract the zip archive at zip_path into the location extract_to.
-       Remove extract_to first if it exists."""
     if os.path.exists(extract_to):
-        print(f"[DEBUG] Removing existing folder {extract_to} before restore")
         shutil.rmtree(extract_to)
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall("/")  # Note: extractall to "/" as original script did
+        zip_ref.extractall("/")
 
 def backup():
     print("🗂️ Starting backup...")
@@ -83,11 +80,10 @@ def restore():
     print("🗃️ Starting restore...")
     for name, paths in backups.items():
         if os.path.exists(paths["dst"]):
-            print(f"[DEBUG] Restoring {name} profile from {paths['dst']}")
             unzip_folder(paths["dst"], paths["src"])
             print(f"✅ {name} profile restored.")
         else:
-            print(f"⚠️ {name} backup not found at {paths['dst']}. Skipping restore.")
+            print(f"⚠️ {name} backup not found. Skipping.")
     log_time("✅ Restore complete at")
 
 def log_time(msg_prefix):
