@@ -166,7 +166,6 @@ create_user
 setup_vnc
 install_chrome
 restore_profile
-vs_code
 wall_change
 
 # Show Ngrok address
