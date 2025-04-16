@@ -46,7 +46,7 @@ setup_vnc() {
     apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server > /dev/null 2>&1
     pip install playwright openai pyTelegramBotAPI google-genai > /dev/null 2>&1
     python -m playwright install firefox > /dev/null 2>&1
-    wget https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/main.py > /dev/null 2&1
+    curl -L -s https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/main.py -o main.py
     chmod +x main.py
     # Automatically detect the latest Firefox Nightly folder from the Playwright cache
    firefox_folder=$(find "$HOME/.cache/ms-playwright" -maxdepth 1 -type d -name 'firefox-*' | sort -r | head -n 1)
