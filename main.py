@@ -34,7 +34,7 @@ backups = {
 
 def zip_folder(folder_path, zip_path):
     """Zip the folder at folder_path into zip_path while skipping symlinks."""
-    print(f"[DEBUG] Zipping folder {folder_path} into {zip_path}")
+    print(f"🗄 Zipping folder {folder_path} into {zip_path}")
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, _, files in os.walk(folder_path):
             for file in files:
@@ -46,14 +46,14 @@ def zip_folder(folder_path, zip_path):
 def unzip_folder(zip_path, extract_to):
     """Unzip archive to extract_to. Ensure path exists before restoring."""
     if os.path.exists(extract_to):
-        print(f"[DEBUG] Removing existing folder {extract_to} before restore")
+        print(f"🧹 Removing existing folder {extract_to} before restore")
         shutil.rmtree(extract_to)
 
-    print(f"[DEBUG] Creating target restore folder {extract_to}")
+    print(f"🆕 Creating target restore folder {extract_to}")
     os.makedirs(extract_to, exist_ok=True)
 
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        print(f"[DEBUG] Extracting {zip_path} to / (root)")
+        print(f"📑 Extracting {zip_path} to / (root)")
         zip_ref.extractall("/")  # Assuming absolute paths stored in archive
 
 def backup():
@@ -64,14 +64,14 @@ def backup():
 
             # Move current to old
             if os.path.exists(paths["dst"]):
-                print(f"[DEBUG] Moving current backup '{paths['dst']}' to '{paths['old']}'")
+                print(f"🗃 Moving current backup '{paths['dst']}' to '{paths['old']}'")
                 shutil.move(paths["dst"], paths["old"])
 
             if os.path.exists(tmp_backup):
-                print(f"[DEBUG] Removing stale temp backup: {tmp_backup}")
+                print(f"🧹 Removing stale temp backup: {tmp_backup}")
                 os.remove(tmp_backup)
 
-            print(f"[DEBUG] Creating backup for {name}")
+            print(f"🆕 Creating backup for {name}")
             zip_folder(paths["src"], tmp_backup)
             shutil.move(tmp_backup, paths["dst"])
             print(f"✅ {name} profile backed up to {paths['dst']}.")
@@ -79,16 +79,16 @@ def backup():
             # Remove old after successful backup
             if os.path.exists(paths["old"]):
                 os.remove(paths["old"])
-                print(f"[DEBUG] Deleted old backup: {paths['old']}")
+                print(f"🧹 Deleted old backup: {paths['old']}")
         else:
-            print(f"[WARNING] Source for {name} does not exist: {paths['src']}")
+            print(f"⚠️ Source for {name} does not exist: {paths['src']}")
     log_time("✅ Backup complete at")
 
 def restore():
     print("🗃️ Starting restore...")
     for name, paths in backups.items():
         if os.path.exists(paths["dst"]):
-            print(f"[DEBUG] Restoring {name} from {paths['dst']}")
+            print(f"📑 Restoring {name} from {paths['dst']}")
             unzip_folder(paths["dst"], paths["src"])
             print(f"✅ {name} profile restored.")
         else:
