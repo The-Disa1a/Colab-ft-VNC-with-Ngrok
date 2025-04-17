@@ -44,7 +44,7 @@ def zip_folder(folder_path, zip_path):
                     zipf.write(file_path, arcname)
 
 def unzip_folder(zip_path, extract_to):
-    """Unzip archive to extract_to. Ensure path exists before restoring."""
+    """Unzip archive to extract_to."""
     if os.path.exists(extract_to):
         print(f"🧹 Removing existing folder {extract_to} before restore")
         shutil.rmtree(extract_to)
@@ -53,8 +53,8 @@ def unzip_folder(zip_path, extract_to):
     os.makedirs(extract_to, exist_ok=True)
 
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        print(f"📑 Extracting {zip_path} to / (root)")
-        zip_ref.extractall("/")  # Assuming absolute paths stored in archive
+        print(f"📑 Extracting {zip_path} to {extract_to}")
+        zip_ref.extractall(extract_to)
 
 def backup():
     print("🗂️ Starting backup...")
