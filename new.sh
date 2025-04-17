@@ -166,6 +166,7 @@ create_user
 setup_vnc
 install_chrome
 restore_profile
+vs_code
 wall_change
 
 # Show Ngrok address
@@ -202,7 +203,7 @@ fi
 # Main loop: live running time updated on the same line and automatic backup every 5 minutes
 start_time=$(date +%s)
 last_backup_time=$(date +%s)
-backup_interval=300  # 3600 seconds = 60 minutes
+backup_interval=3600  # 3600 seconds = 60 minutes
 
 while true; do
     current_time=$(date +%s)
