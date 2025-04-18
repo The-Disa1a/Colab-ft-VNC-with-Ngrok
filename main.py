@@ -43,44 +43,49 @@ def zip_folder(folder_path, zip_path):
                     arcname = os.path.relpath(file_path, folder_path)
                     zipf.write(file_path, arcname)
 
+import os, shutil, zipfile
+
 def unzip_folder(zip_path, extract_to):
-    """Unzip archive to extract_to, fixing deeply nested paths like /root/..."""
+    """Unzip archive to extract_to, stripping any leading folder paths
+       that match the extract_to location itself."""
+    # Prepare strip‐prefixes:
+    #  1) absolute (no leading slash):  "root/.mozilla/firefox"
+    #  2) home‐relative:                ".mozilla/firefox"
+    abs_prefix   = extract_to.lstrip(os.sep)
+    home_prefix  = os.path.relpath(extract_to, os.path.expanduser("~")).lstrip(os.sep)
+    prefixes     = [abs_prefix, home_prefix]
 
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        members = zip_ref.infolist()
-        normalized_extract_to = os.path.normpath(extract_to)
+    # Clear out any existing folder
+    if os.path.exists(extract_to):
+        shutil.rmtree(extract_to)
+    os.makedirs(extract_to, exist_ok=True)
 
-        # Remove existing folder first
-        if os.path.exists(extract_to):
-            shutil.rmtree(extract_to)
-        os.makedirs(extract_to, exist_ok=True)
+    with zipfile.ZipFile(zip_path, 'r') as zipf:
+        for member in zipf.namelist():
+            # skip directories
+            if member.endswith('/'):
+                continue
 
-        for member in members:
-            member_path = member.filename
+            # normalize (remove any leading “/” in the zip entry)
+            m = member.lstrip('/')
 
-            # Normalize and split the path
-            parts = Path(member_path).parts
+            # strip off any of our prefixes
+            for p in prefixes:
+                if m.startswith(p + '/'):
+                    m = m[len(p) + 1:]
+                    break
 
-            # Try to find where the real profile path begins inside the zip
-            # e.g., skip over '/root/.mozilla/firefox' if restoring into ~/.mozilla/firefox
-            try:
-                # This is the index where profile name starts in zip entry
-                idx = parts.index(Path(extract_to).name)
-                relative_parts = parts[idx + 1:]  # +1 to skip the folder itself
-            except ValueError:
-                relative_parts = parts  # If no match, extract whole path
+            # avoid dangerous paths
+            m = os.path.normpath(m)
+            if m.startswith('..'):
+                continue
 
-            if not relative_parts:
-                continue  # Skip folders
-
-            target_path = os.path.join(extract_to, *relative_parts)
-
-            if member.is_dir():
-                os.makedirs(target_path, exist_ok=True)
-            else:
-                os.makedirs(os.path.dirname(target_path), exist_ok=True)
-                with zip_ref.open(member) as source, open(target_path, 'wb') as target:
-                    shutil.copyfileobj(source, target)
+            # write out
+            dest = os.path.join(extract_to, m)
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with zipf.open(member) as src, open(dest, 'wb') as dst:
+                dst.write(src.read())
+                
 def backup():
     print("🗂️ Starting backup...")
     for name, paths in backups.items():
