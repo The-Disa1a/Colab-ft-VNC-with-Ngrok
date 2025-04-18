@@ -44,17 +44,36 @@ def zip_folder(folder_path, zip_path):
                     zipf.write(file_path, arcname)
 
 def unzip_folder(zip_path, extract_to):
-    """Unzip archive to extract_to."""
-    if os.path.exists(extract_to):
-        #print(f"🧹 Removing existing folder {extract_to} before restore")
-        shutil.rmtree(extract_to)
-
-    #print(f"🆕 Creating target restore folder {extract_to}")
-    os.makedirs(extract_to, exist_ok=True)
-
+    """Unzip archive to extract_to, avoiding nested folder duplication."""
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        #print(f"📑 Extracting {zip_path} to {extract_to}")
-        zip_ref.extractall(extract_to)
+        members = zip_ref.namelist()
+        common_prefix = os.path.commonprefix(members)
+        zip_root_dir = os.path.normpath(common_prefix).split(os.sep)[0]
+        target_basename = os.path.basename(os.path.normpath(extract_to))
+
+        # Check if the zip is structured with the root dir (i.e., will cause nesting)
+        has_nested_root = zip_root_dir == target_basename
+
+        # Clean up existing target
+        if os.path.exists(extract_to):
+            shutil.rmtree(extract_to)
+
+        if has_nested_root:
+            # Extract to parent to avoid duplication
+            parent_dir = os.path.dirname(extract_to)
+            print(f"📁 Detected nested root, extracting to parent: {parent_dir}")
+            zip_ref.extractall(parent_dir)
+
+            extracted_path = os.path.join(parent_dir, zip_root_dir)
+            if extracted_path != extract_to:
+                # Clean target (again) in case partial conflict
+                if os.path.exists(extract_to):
+                    shutil.rmtree(extract_to)
+                shutil.move(extracted_path, extract_to)
+        else:
+            print(f"📂 Extracting normally to: {extract_to}")
+            os.makedirs(extract_to, exist_ok=True)
+            zip_ref.extractall(extract_to)
 
 def backup():
     print("🗂️ Starting backup...")
