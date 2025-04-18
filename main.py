@@ -43,33 +43,43 @@ def zip_folder(folder_path, zip_path):
                     arcname = os.path.relpath(file_path, folder_path)
                     zipf.write(file_path, arcname)
 
+from pathlib import Path
 def unzip_folder(zip_path, extract_to):
     """Unzip archive to extract_to, avoiding nested folder duplication."""
+
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         members = zip_ref.namelist()
-        common_prefix = os.path.commonprefix(members)
-        zip_root_dir = os.path.normpath(common_prefix).split(os.sep)[0]
-        target_basename = os.path.basename(os.path.normpath(extract_to))
 
-        # Check if the zip is structured with the root dir (i.e., will cause nesting)
-        has_nested_root = zip_root_dir == target_basename
+        # Normalize path components (ignoring empty entries)
+        paths = [Path(m) for m in members if m and not m.endswith('/')]
+        if not paths:
+            print("⚠️ Zip archive is empty or has no files.")
+            return
 
-        # Clean up existing target
+        # Get top-level directory names from zip
+        top_level_dirs = set(p.parts[0] for p in paths if len(p.parts) > 0)
+
+        # Determine if zip contains a single top-level folder matching the extract_to basename
+        extract_to_basename = Path(extract_to).name
+        nested_root_detected = (
+            len(top_level_dirs) == 1 and
+            list(top_level_dirs)[0] == extract_to_basename
+        )
+
+        # Remove existing target
         if os.path.exists(extract_to):
             shutil.rmtree(extract_to)
 
-        if has_nested_root:
-            # Extract to parent to avoid duplication
+        if nested_root_detected:
+            # Extract to parent dir to avoid nested duplication
             parent_dir = os.path.dirname(extract_to)
-            print(f"📁 Detected nested root, extracting to parent: {parent_dir}")
+            print(f"📁 Detected nested root '{extract_to_basename}', extracting to parent: {parent_dir}")
             zip_ref.extractall(parent_dir)
 
-            extracted_path = os.path.join(parent_dir, zip_root_dir)
-            if extracted_path != extract_to:
-                # Clean target (again) in case partial conflict
-                if os.path.exists(extract_to):
-                    shutil.rmtree(extract_to)
-                shutil.move(extracted_path, extract_to)
+            # Move if nested folder got recreated inside parent
+            inner_path = os.path.join(parent_dir, extract_to_basename)
+            if inner_path != extract_to and os.path.exists(inner_path):
+                shutil.move(inner_path, extract_to)
         else:
             print(f"📂 Extracting normally to: {extract_to}")
             os.makedirs(extract_to, exist_ok=True)
