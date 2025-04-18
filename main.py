@@ -43,48 +43,44 @@ def zip_folder(folder_path, zip_path):
                     arcname = os.path.relpath(file_path, folder_path)
                     zipf.write(file_path, arcname)
 
-from pathlib import Path
 def unzip_folder(zip_path, extract_to):
-    """Unzip archive to extract_to, avoiding nested folder duplication."""
+    """Unzip archive to extract_to, fixing deeply nested paths like /root/..."""
 
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        members = zip_ref.namelist()
+        members = zip_ref.infolist()
+        normalized_extract_to = os.path.normpath(extract_to)
 
-        # Normalize path components (ignoring empty entries)
-        paths = [Path(m) for m in members if m and not m.endswith('/')]
-        if not paths:
-            print("⚠️ Zip archive is empty or has no files.")
-            return
-
-        # Get top-level directory names from zip
-        top_level_dirs = set(p.parts[0] for p in paths if len(p.parts) > 0)
-
-        # Determine if zip contains a single top-level folder matching the extract_to basename
-        extract_to_basename = Path(extract_to).name
-        nested_root_detected = (
-            len(top_level_dirs) == 1 and
-            list(top_level_dirs)[0] == extract_to_basename
-        )
-
-        # Remove existing target
+        # Remove existing folder first
         if os.path.exists(extract_to):
             shutil.rmtree(extract_to)
+        os.makedirs(extract_to, exist_ok=True)
 
-        if nested_root_detected:
-            # Extract to parent dir to avoid nested duplication
-            parent_dir = os.path.dirname(extract_to)
-            print(f"📁 Detected nested root '{extract_to_basename}', extracting to parent: {parent_dir}")
-            zip_ref.extractall(parent_dir)
+        for member in members:
+            member_path = member.filename
 
-            # Move if nested folder got recreated inside parent
-            inner_path = os.path.join(parent_dir, extract_to_basename)
-            if inner_path != extract_to and os.path.exists(inner_path):
-                shutil.move(inner_path, extract_to)
-        else:
-            print(f"📂 Extracting normally to: {extract_to}")
-            os.makedirs(extract_to, exist_ok=True)
-            zip_ref.extractall(extract_to)
+            # Normalize and split the path
+            parts = Path(member_path).parts
 
+            # Try to find where the real profile path begins inside the zip
+            # e.g., skip over '/root/.mozilla/firefox' if restoring into ~/.mozilla/firefox
+            try:
+                # This is the index where profile name starts in zip entry
+                idx = parts.index(Path(extract_to).name)
+                relative_parts = parts[idx + 1:]  # +1 to skip the folder itself
+            except ValueError:
+                relative_parts = parts  # If no match, extract whole path
+
+            if not relative_parts:
+                continue  # Skip folders
+
+            target_path = os.path.join(extract_to, *relative_parts)
+
+            if member.is_dir():
+                os.makedirs(target_path, exist_ok=True)
+            else:
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                with zip_ref.open(member) as source, open(target_path, 'wb') as target:
+                    shutil.copyfileobj(source, target)
 def backup():
     print("🗂️ Starting backup...")
     for name, paths in backups.items():
