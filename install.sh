@@ -43,7 +43,8 @@ create_user() {
 # Function to install and configure RDP using VNC and Ngrok
 setup_vnc() {
     echo "Installing Desktop Environment and VNC..."
-    apt update -qq > /dev/null 2>&1 && apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server > /dev/null 2>&1
+    apt update -qq
+    apt install -qq -y xfce4 xfce4-terminal tightvncserver wget curl tmate autocutsel nano tigervnc-standalone-server
     pip install playwright openai pyTelegramBotAPI google-genai > /dev/null 2>&1
     python -m playwright install firefox > /dev/null 2>&1
     # Automatically detect the latest Firefox Nightly folder from the Playwright cache
