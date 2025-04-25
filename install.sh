@@ -105,51 +105,6 @@ install_chrome() {
     update-desktop-database ~/.local/share/applications
 }
 
-# Function to restore profiles from backup
-restore_profile() {
-    echo "Checking for backup files..."
-    echo "Looking for Chrome backup at: /content/drive/MyDrive/Profiles/ChromeBackup.zip"
-    echo "Looking for Firefox root backup at: /content/drive/MyDrive/Profiles/RNightly.zip"
-    echo "Looking for Firefox local backup at: /content/drive/MyDrive/Profiles/LNightly.zip"
-
-    CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
-    NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
-    NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
-    CHROME_PROFILE="$HOME/.config/google-chrome"
-    NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
-    NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
-
-    if [[ -f "$CHROME_BACKUP_PATH" ]]; then
-        echo "📂 Chrome profile backup found! Restoring..."
-        rm -rf "$CHROME_PROFILE"
-        mkdir -p "$CHROME_PROFILE"
-        unzip -q "$CHROME_BACKUP_PATH" -d "/"
-        echo "✅ Chrome profile restored successfully!"
-    else
-        echo "⚠️ No Chrome profile backup found. Skipping restore."
-    fi
-
-    if [[ -f "$NIGHTLY_RBACKUP_PATH" ]]; then
-        echo "🔥 Firefox Nightly root profile backup found! Restoring..."
-        rm -rf "$NIGHTLY_ROOT_PROFILE"
-        mkdir -p "$NIGHTLY_ROOT_PROFILE"
-        unzip -q "$NIGHTLY_RBACKUP_PATH" -d "/"
-        echo "✅ Firefox Nightly root profile restored successfully!"
-    else
-        echo "⚠️ No Firefox Nightly root profile backup found. Skipping restore."
-    fi
-
-    if [[ -f "$NIGHTLY_LBACKUP_PATH" ]]; then
-        echo "🔥 Firefox Nightly local profile backup found! Restoring..."
-        rm -rf "$NIGHTLY_LOCAL_PROFILE"
-        mkdir -p "$NIGHTLY_LOCAL_PROFILE"
-        unzip -q "$NIGHTLY_LBACKUP_PATH" -d "/"
-        echo "✅ Firefox Nightly local profile restored successfully!"
-    else
-        echo "⚠️ No Firefox Nightly local profile backup found. Skipping restore."
-    fi
-}
-
 # Function to change Wallpaper
 wall_change() {
    curl -s -L -k -o xfce-verticals.png "https://raw.githubusercontent.com/The-Disa1a/Colab-ft-VNC-with-Ngrok/refs/heads/main/wall/CachedImage_1024_768_POS4.jpg"
@@ -174,97 +129,10 @@ vs_code() {
    update-desktop-database ~/.local/share/applications > /dev/null 2>&1
 }
 
-# ----------------- Backup Functions (Minimal Logging) -----------------
-
-# Define drive backup paths
-CHROME_BACKUP_PATH="/content/drive/MyDrive/Profiles/ChromeBackup.zip"
-NIGHTLY_RBACKUP_PATH="/content/drive/MyDrive/Profiles/RNightly.zip"
-NIGHTLY_LBACKUP_PATH="/content/drive/MyDrive/Profiles/LNightly.zip"
-
-# Define renamed (old) backup paths on drive
-CHROME_OLD_BACKUP="/content/drive/MyDrive/Profiles/ChromeBackup.old.zip"
-NIGHTLY_R_OLD_BACKUP="/content/drive/MyDrive/Profiles/RNightly.old.zip"
-NIGHTLY_L_OLD_BACKUP="/content/drive/MyDrive/Profiles/LNightly.old.zip"
-
-# Define local temporary backup paths (inside Colab or local tmp)
-TMP_CHROME_BACKUP="/tmp/ChromeBackup.zip"
-TMP_NIGHTLY_RBACKUP="/tmp/RNightly.zip"
-TMP_NIGHTLY_LBACKUP="/tmp/LNightly.zip"
-
-# Define profiles
-CHROME_PROFILE="$HOME/.config/google-chrome"
-NIGHTLY_ROOT_PROFILE="$HOME/.mozilla/firefox"
-NIGHTLY_LOCAL_PROFILE="$HOME/.cache/mozilla/firefox"
-
-# Function to perform backup
-perform_backup() {
-    backup_success=1
-
-    # ----------------- Chrome Backup -----------------
-    if [ -d "$CHROME_PROFILE" ]; then
-        [ -f "$CHROME_BACKUP_PATH" ] && mv "$CHROME_BACKUP_PATH" "$CHROME_OLD_BACKUP"
-        [ -f "$TMP_CHROME_BACKUP" ] && rm -f "$TMP_CHROME_BACKUP"
-        zip -r -q "$TMP_CHROME_BACKUP" "$CHROME_PROFILE" || backup_success=0
-        if [ $backup_success -eq 1 ]; then
-            mv "$TMP_CHROME_BACKUP" "$CHROME_BACKUP_PATH" || backup_success=0
-        fi
-    fi
-
-    # ----------------- Firefox (Root Profile) Backup -----------------
-    if [ -d "$NIGHTLY_ROOT_PROFILE" ]; then
-        [ -f "$NIGHTLY_RBACKUP_PATH" ] && mv "$NIGHTLY_RBACKUP_PATH" "$NIGHTLY_R_OLD_BACKUP"
-        [ -f "$TMP_NIGHTLY_RBACKUP" ] && rm -f "$TMP_NIGHTLY_RBACKUP"
-        zip -r -q "$TMP_NIGHTLY_RBACKUP" "$NIGHTLY_ROOT_PROFILE" || backup_success=0
-        if [ $backup_success -eq 1 ]; then
-            mv "$TMP_NIGHTLY_RBACKUP" "$NIGHTLY_RBACKUP_PATH" || backup_success=0
-        fi
-    fi
-
-    # ----------------- Firefox (Local Profile) Backup -----------------
-    if [ -d "$NIGHTLY_LOCAL_PROFILE" ]; then
-        [ -f "$NIGHTLY_LBACKUP_PATH" ] && mv "$NIGHTLY_LBACKUP_PATH" "$NIGHTLY_L_OLD_BACKUP"
-        [ -f "$TMP_NIGHTLY_LBACKUP" ] && rm -f "$TMP_NIGHTLY_LBACKUP"
-        zip -r -q "$TMP_NIGHTLY_LBACKUP" "$NIGHTLY_LOCAL_PROFILE" || backup_success=0
-        if [ $backup_success -eq 1 ]; then
-            mv "$TMP_NIGHTLY_LBACKUP" "$NIGHTLY_LBACKUP_PATH" || backup_success=0
-        fi
-    fi
-
-    # ----------------- Cleanup Old Backups If Successful -----------------
-    if [ $backup_success -eq 1 ]; then
-        echo "✅ Backup successful. Cleaning up old backups..."
-        [ -f "$CHROME_OLD_BACKUP" ] && rm -f "$CHROME_OLD_BACKUP"
-        [ -f "$NIGHTLY_R_OLD_BACKUP" ] && rm -f "$NIGHTLY_R_OLD_BACKUP"
-        [ -f "$NIGHTLY_L_OLD_BACKUP" ] && rm -f "$NIGHTLY_L_OLD_BACKUP"
-    else
-        echo "⚠️ One or more backups failed. Old backups have been retained."
-    fi
-}
-
-# Function to call backup and print a summary log with a 12-hour timestamp (GMT+5:30)
-do_backup() {
-    perform_backup
-    backup_time=$(TZ='Asia/Kolkata' date '+%I:%M:%S %p')
-    echo -e "\n✅ Backup Was Done: $backup_time"
-}
-
-# Trap for SIGINT (Ctrl+C) to perform a final backup with minimal logging
-backup_on_exit() {
-    echo -e "\n\nDetected exit! Performing final backup..."
-    perform_backup
-    backup_time=$(TZ='Asia/Kolkata' date '+%I:%M:%S %p')
-    echo -e "✅ Final Backup Was Done: $backup_time"
-    exit 0
-}
-trap backup_on_exit SIGINT
-
-# ----------------- End Backup Functions -----------------
-
 # Execute initial setup functions
 create_user
 setup_vnc
 install_chrome
-restore_profile
 wall_change
 
 # Show Ngrok address
@@ -298,24 +166,4 @@ else
     echo -e "\n[Info] Bot API or Chat ID not provided. Skipping Telegram message."
 fi
 
-# Main loop: live running time updated on the same line and automatic backup every 5 minutes
-start_time=$(date +%s)
-last_backup_time=$(date +%s)
-backup_interval=3600  # 3600 seconds = 60 minutes
-
-while true; do
-    current_time=$(date +%s)
-    running_time=$(( current_time - start_time ))
-    live_time=$(printf "%02d:%02d:%02d" $((running_time/3600)) $(((running_time%3600)/60)) $((running_time%60)))
-    
-    # Update running time on the same line
-    echo -ne "\rRunning Time: $live_time"
-    
-    # Check if 5 minutes have passed and perform backup if so
-    if (( current_time - last_backup_time >= backup_interval )); then
-         do_backup
-         last_backup_time=$current_time
-    fi
-    
-    sleep 10
-done
+start_time=$(date +%s); while true; do elapsed=$(( $(date +%s) - start_time )); elapsed_formatted=$(printf "%02d:%02d:%02d" $((elapsed/3600)) $(((elapsed%3600)/60)) $((elapsed%60))); echo -ne "\rRunning Time: $elapsed_formatted"; sleep 10; done
