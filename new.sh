@@ -119,7 +119,7 @@ wall_change() {
 # Funtion to install vscode
 vs_code() {
    sudo apt update -y > /dev/null 2>&1
-   sudo apt install wget gpg -y > /dev/null 2>&1
+   sudo apt install wget gpg qbittorrent -y > /dev/null 2>&1
    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/packages.microsoft.gpg > /dev/null 2>&1
    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null 2>&1
    sudo apt update -y > /dev/null 2>&1
