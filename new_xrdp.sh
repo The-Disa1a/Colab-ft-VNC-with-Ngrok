@@ -9,22 +9,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Check if Ngrok auth token is provided
-if [[ -z "$1" ]]; then
-    echo "Usage: $0 <NGROK_AUTH_TOKEN> <REGION> [BOT_API_TOKEN] [CHAT_ID]"
-    exit 1
-fi
-
-# Check if region is provided
-if [[ -z "$2" ]]; then
-    echo "Usage: $0 <NGROK_AUTH_TOKEN> <REGION> [BOT_API_TOKEN] [CHAT_ID]"
-    exit 1
-fi
-
-NGROK_AUTH_TOKEN="$1"
-REGION="$2"
-API="$3"
-CHAT_ID="$4"
+API="$1"
+CHAT_ID="$2"
 
 # Function to create user
 create_user() {
